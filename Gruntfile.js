@@ -15,8 +15,13 @@ module.exports = function(grunt) {
       }
     },
 
-    qunit: {
-      files: ["test/*.html"]
+    mocha: {
+      options: {
+        run: true,
+      },
+      test: {
+        src: ["test/{*/,}*.html"]
+      }
     },
 
     jshint: {
@@ -33,16 +38,29 @@ module.exports = function(grunt) {
 
     watch: {
       files: ["<%= jshint.files %>"],
-      tasks: ["jshint", "qunit"]
+      tasks: ["jshint", "mocha"]
+    },
+
+    connect: {
+      options: {
+        hostname: "localhost"
+      },
+      test: {
+        options: {
+          keepalive: true,
+          open: "/test/"
+        }
+      }
     }
   });
 
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-jshint");
-  grunt.loadNpmTasks("grunt-contrib-qunit");
+  grunt.loadNpmTasks("grunt-mocha");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-contrib-connect");
 
-  grunt.registerTask("test", ["jshint", "qunit"]);
-  grunt.registerTask("default", ["jshint", "qunit", "uglify"]);
+  grunt.registerTask("test", ["jshint", "mocha"]);
+  grunt.registerTask("default", ["jshint", "mocha", "uglify"]);
 
 };
