@@ -19,7 +19,7 @@
     <script src="main.js"></script>
     <script charset="utf-8">
       mocha.checkLeaks();
-      mocha.globals(["fetch"]);
+      mocha.globals(["fetch", "___browserSync___oldSocketIo", "io", "___browserSync___"]);
       mocha.run();
     </script>
   </body>
