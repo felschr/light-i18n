@@ -79,7 +79,7 @@ describe("light-i18n", function() {
       // "test": "test1"
       ele.setAttribute("i18n", "test");
       ele.innerHTML = "test";
-      ele.lang = navigator.language;
+      ele.lang = navigator.userLanguage || navigator.language;
 
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test");

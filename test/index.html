@@ -9,6 +9,11 @@
     <div id="mocha"></div>
     <script src="../bower_components/expect/index.js"></script>
     <script src="../bower_components/mocha/mocha.js"></script>
+    <script src="../bower_components/es6-promise/promise.js"></script>
+    <script>
+      /* global ES6Promise */
+      ES6Promise.polyfill();
+    </script>
     <script src="../bower_components/fetch/fetch.js"></script>
     <script>
       /* global mocha */
