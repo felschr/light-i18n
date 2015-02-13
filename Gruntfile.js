@@ -41,14 +41,13 @@ module.exports = function(grunt) {
       tasks: ["jshint", "mocha"]
     },
 
-    connect: {
-      options: {
-        hostname: "localhost"
-      },
+    browserSync: {
       test: {
-        options: {
-          keepalive: true,
-          open: "/test/"
+        src : ["src/*.js", "test/{*/,}*"]
+      },
+      options: {
+        server: {
+          baseDir: "./"
         }
       }
     }
@@ -58,7 +57,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-mocha");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.loadNpmTasks("grunt-contrib-connect");
+  grunt.loadNpmTasks("grunt-browser-sync");
 
   grunt.registerTask("test", ["jshint", "mocha"]);
   grunt.registerTask("default", ["jshint", "mocha", "uglify"]);
