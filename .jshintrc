@@ -11,6 +11,7 @@
   "indent": 2,
   "eqeqeq": true,
   "browser": true,
+  "devel": true,
   "predef": ["fetch"],
   "quotmark": "double"
 }
