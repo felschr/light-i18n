@@ -4,7 +4,7 @@
 (function (global) {
   "use strict";
 
-  var language = (function(lang) {
+  var languageDialect = (function(lang) {
   		window.location.search.slice(1).split("&").some(function (searchTerm) {
   			if (searchTerm.indexOf("lang=") === 0) {
   				lang = searchTerm.split("=").slice(1).join("=");
@@ -12,8 +12,9 @@
   			}
   		});
 
-  		return lang.toLowerCase().split("-")[0];
+  		return lang.toLowerCase();
   	})(window.navigator.userLanguage || window.navigator.language),
+    language = languageDialect.split("-")[0],
     translations;
 
   function loadTranslations(language, set, base) {
@@ -77,7 +78,7 @@
   function translate(obj, ancestor) {
     ancestor = ancestor || document;
 
-    if(getLang(ancestor) === language) {
+    if(getLang(ancestor) === languageDialect) {
       if(!ancestor.hasAttribute("i18n")) {
         [].slice.call(ancestor.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(translate.bind(null, obj));
       }
@@ -88,7 +89,7 @@
       applyTranslationToElement(ancestor, obj);
     } else {
       [].slice.call(ancestor.querySelectorAll("[i18n]")).forEach(function(ele) {
-        if(getLang(ele, ancestor) !== language) {
+        if(getLang(ele, ancestor) !== languageDialect) {
           applyTranslationToElement(ele, obj);
         }
       });
