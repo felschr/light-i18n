@@ -12,6 +12,7 @@
     "trailing": true,
     "indent": 2,
     "eqeqeq": true,
+    "browser": true,
     "predef": ["fetch"],
     "quotmark": "double"
 }
