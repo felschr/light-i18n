@@ -10,6 +10,5 @@
     "unused": true,
     "strict": true,
     "trailing": true,
-    "smarttabs": true,
-    "exported": true
+    "smarttabs": true
 }
