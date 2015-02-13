@@ -8,5 +8,7 @@
     "bower_components",
     "test"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "fetch": "~0.7.0
+  }
 }
