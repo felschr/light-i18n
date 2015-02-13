@@ -51,10 +51,12 @@
   function applyTranslation(ele, path, obj) {
 		var translated = getByPath(obj, path);
 
-    if (typeof(translated) !== "undefined") {
-			ele.textContent = translated;
+    if (typeof(translated) === "undefined") {
+      console.warn("Could not translate %o: path '%s' not found", ele, path);
+    } else if (typeof(translated) === "object") {
+      console.warn("Could not translate %o: path '%s' is of type object", ele, path);
     } else {
-      console.warn("Could not translate website: path '%s' not found", path);
+			ele.textContent = translated;
     }
   }
 
