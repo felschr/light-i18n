@@ -27,18 +27,21 @@
       }
     }).then(function (res) {
       if (res.ok) {
+        console.log("successfully loaded translations");
         return res.json();
       }
 
       // TODO add error object instead of false
       return Promise.reject(false);
-    }).then(function (obj) {
-      console.log("successfully loaded translations");
-
-      translate(obj);
-      return obj;
     }).catch(function (err) {
       console.error("Error loading translations: %o", err);
+    });
+  }
+
+  function loadAndApplyTranslations(language, parent, set, base) {
+    return loadTranslations(language, set, base).then(function (obj) {
+      translate(obj);
+      return obj;
     });
   }
 
@@ -64,19 +67,19 @@
     }, obj);
   }
 
-  function translate(obj, parent) {
-    parent = parent || document;
+  function translate(obj, ancestor) {
+    ancestor = ancestor || document;
 
-    if(parent.hasAttribute("i18n")) {
-      applyTranslationToElement(parent, obj);
+    if(ancestor.hasAttribute("i18n")) {
+      applyTranslationToElement(ancestor, obj);
     }
 
-    [].slice.call((parent || document).querySelectorAll("[i18n]")).forEach(function(ele) {
+    [].slice.call(ancestor.querySelectorAll("[i18n]")).forEach(function(ele) {
       applyTranslationToElement(ele, obj);
     });
   }
 
-  translations = loadTranslations(language);
+  translations = loadAndApplyTranslations(language);
 
   global.i18n = {
     translations: translations,
@@ -91,7 +94,7 @@
 
 			if(lang !== language) {
       	language = lang;
-        translations = loadTranslations(lang);
+        translations = loadAndApplyTranslations(lang);
 			}
     },
     get language() {
