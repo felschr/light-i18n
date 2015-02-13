@@ -12,34 +12,23 @@ var i18n = (function(global) {
 				xhr;
 
 		console.log("loading translations from: " + url);
-		xhr = new XMLHttpRequest();
-		xhr.open("GET", url, true);
-		xhr.setRequestHeader("Accept", "application/json");
-		xhr.setRequestHeader("Accept-Encoding", "UTF-8");
-		
-		// TODO add event listeners for error cases
-		xhr.onreadystatechange = function() {
-			var translationJson;
-
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200) {
-					try {
-						console.log("successfully loaded translations");
-						translationJson = JSON.parse(xhr.responseText);
-					} catch (e) {
-						console.error("could not parse JSON translations", e);
-					}
-
-					if (translationJson) {
-						searchForTranslationElements(translationJson);
-					}
-
-				} else {
-					console.log("failed loading translations");
-				}
-			}
-		};
-		xhr.send();
+		return fetch(url, {
+            headers: {
+                "Accept": "application/json",
+                "Accept-Encoding": "UTF-8"
+            }
+        }).then(function(res) {
+            if(res.ok) {
+                return res.json();
+            }
+            // TODO add error object instead of false
+            return Promise.reject(false);
+        }).then(function(obj) {
+			console.log("successfully loaded translations");
+			searchForTranslationElements(obj);
+		}).catch(function(err) {
+            console.error("Error loading translations: %o", err);
+        });
 	}
 
 	function getTranslation(key, json) {
