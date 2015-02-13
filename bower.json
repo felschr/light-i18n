@@ -1,0 +1,12 @@
+{
+  "name": "light-i18n",
+  "version": "0.0.0",
+  "main": "dist/light-i18n.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {}
+}
