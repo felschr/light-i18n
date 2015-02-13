@@ -38,9 +38,9 @@
     });
   }
 
-  function loadAndApplyTranslations(language, parent, set, base) {
+  function loadAndApplyTranslations(language, ancestor, set, base) {
     return loadTranslations(language, set, base).then(function (obj) {
-      translate(obj);
+      translate(obj, ancestor);
       return obj;
     });
   }
@@ -61,6 +61,14 @@
     }
   }
 
+  function getLang(ele, threshold) {
+    do {
+      if(ele.lang) {
+        return ele.lang;
+      }
+    } while((ele = ele.parentElement) && ele !== threshold);
+  }
+
   function getByPath(obj, path) {
     return path.split(".").reduce(function (obj, key) {
       return obj ? obj[key] : undefined;
@@ -70,13 +78,22 @@
   function translate(obj, ancestor) {
     ancestor = ancestor || document;
 
-    if(ancestor.hasAttribute("i18n")) {
-      applyTranslationToElement(ancestor, obj);
+    if(getLang(ancestor) === language) {
+      if(!ancestor.hasAttribute("i18n")) {
+        [].slice.call(ancestor.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(translate.bind(null, obj));
+      }
+      return;
     }
 
-    [].slice.call(ancestor.querySelectorAll("[i18n]")).forEach(function(ele) {
-      applyTranslationToElement(ele, obj);
-    });
+    if(ancestor.hasAttribute("i18n")) {
+      applyTranslationToElement(ancestor, obj);
+    } else {
+      [].slice.call(ancestor.querySelectorAll("[i18n]")).forEach(function(ele) {
+        if(getLang(ele, ancestor) !== language) {
+          applyTranslationToElement(ele, obj);
+        }
+      });
+    }
   }
 
   translations = loadAndApplyTranslations(language);
