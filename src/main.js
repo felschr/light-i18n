@@ -5,7 +5,7 @@
 var i18n = (function(global) {
 	"use strict";
 	var language = window.navigator.userLanguage || window.navigator.language,
-			searchTerms = window.location.search.substring(1).split(/[?&]/);
+			searchTerms = window.location.search.slice(1).split("&");
 
 	function loadTranslations(language) {
 		var url = window.location.protocol + "//" + window.location.host + window.location.pathname + "locales/" + language + "/translation.json",
