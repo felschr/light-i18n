@@ -22,8 +22,7 @@
 
     return fetch(url, {
       headers: {
-        "Accept": "application/json",
-        "Accept-Encoding": "UTF-8"
+        "Accept": "application/json"
       }
     }).then(function (res) {
       if (res.ok) {
