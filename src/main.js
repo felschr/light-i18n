@@ -11,7 +11,7 @@ var i18n = (function(global) {
 		var url = window.location.protocol + "//" + window.location.host + window.location.pathname + "locales/" + language + "/translation.json",
 				xhr;
 
-		console.log("loading translations from: " + url);
+		console.info("loading translations from: " + url);
 		return fetch(url, {
             headers: {
                 "Accept": "application/json",
@@ -25,33 +25,28 @@ var i18n = (function(global) {
             return Promise.reject(false);
         }).then(function(obj) {
 			console.log("successfully loaded translations");
-			searchForTranslationElements(obj);
+			return searchForTranslationElements(obj);
 		}).catch(function(err) {
             console.error("Error loading translations: %o", err);
         });
 	}
 
-	function getTranslation(key, json) {
-		var nodes = key.split("."),
-				translation = json;
-
-		nodes.forEach(function(node) {
-			translation = translation[node];
-		});
-
-		return translation;
-	}
-
-	function applyTranslation(ele, key, json) {
-		if (json !== null) {
-			ele.innerHTML = getTranslation(key, json);
+	function applyTranslation(ele, key, obj) {
+		if (obj) {
+			ele.innerHTML = getByPath(obj, key);
 		} else {
 			console.log("Could not translate website because JSON wasn't loaded yet.");
 		}
 	}
 
-	function searchForTranslationElements(translationJson) {
-		var translationElements = document.querySelectorAll("[i18n]");
+    function getByPath(obj, path) {
+        return path.split(".").reduce(function(obj, key) {
+            return obj ? obj[key] : undefined;
+        }, obj);
+    }
+
+	function searchForTranslationElements(translationJson, parent) {
+		var translationElements = (parent || document).querySelectorAll("[i18n]");
 
 		[].forEach.call(translationElements, function(ele) {
 			applyTranslation(ele, ele.getAttribute("i18n"), translationJson);
