@@ -5,15 +5,16 @@
   "use strict";
 
   var language = (function(lang) {
-		window.location.search.slice(1).split("&").some(function (searchTerm) {
-			if (searchTerm.indexOf("lang=") === 0) {
-				lang = searchTerm.split("=").slice(1).join("=");
-				return true;
-			}
-		});
+  		window.location.search.slice(1).split("&").some(function (searchTerm) {
+  			if (searchTerm.indexOf("lang=") === 0) {
+  				lang = searchTerm.split("=").slice(1).join("=");
+  				return true;
+  			}
+  		});
 
-		return lang.toLowerCase().split("-")[0];
-	})(window.navigator.userLanguage || window.navigator.language);
+  		return lang.toLowerCase().split("-")[0];
+  	})(window.navigator.userLanguage || window.navigator.language),
+    translations;
 
   function loadTranslations(language, set, base) {
     var url = (base || "locales/") + language + "/" + (set || "translation") + ".json";
@@ -34,10 +35,17 @@
     }).then(function (obj) {
       console.log("successfully loaded translations");
 
-      return searchForTranslationElements(obj);
+      translate(obj);
+      return obj;
     }).catch(function (err) {
       console.error("Error loading translations: %o", err);
     });
+  }
+
+  function applyTranslationToElement(ele, obj) {
+    if(ele.hasAttribute("i18n")) {
+      applyTranslation(ele, ele.getAttribute("i18n"), obj);
+    }
   }
 
   function applyTranslation(ele, path, obj) {
@@ -56,21 +64,34 @@
     }, obj);
   }
 
-  function searchForTranslationElements(obj, parent) {
+  function translate(obj, parent) {
+    parent = parent || document;
+
+    if(parent.hasAttribute("i18n")) {
+      applyTranslationToElement(parent, obj);
+    }
+
     [].slice.call((parent || document).querySelectorAll("[i18n]")).forEach(function(ele) {
-      applyTranslation(ele, ele.getAttribute("i18n"), obj);
+      applyTranslationToElement(ele, obj);
     });
   }
 
-  loadTranslations(language);
+  translations = loadTranslations(language);
 
   global.i18n = {
+    translations: translations,
+    translate: function(ele) {
+      return this.translations.then(function(obj) {
+        translate(obj, ele);
+        return obj;
+      });
+    },
     set language(lang) {
 			lang = String(lang);
 
 			if(lang !== language) {
       	language = lang;
-				loadTranslations(lang);
+        translations = loadTranslations(lang);
 			}
     },
     get language() {
