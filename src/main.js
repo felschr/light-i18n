@@ -1,6 +1,3 @@
-/* light-i18n main */
-/* jshint browser: true */
-// Base function.
 (function (global) {
   "use strict";
 
@@ -26,8 +23,8 @@
         "Accept": "application/json"
       }
     }).then(function (res) {
-      if (res.ok) {
-        console.log("successfully loaded translations");
+      if (res.status >= 200 && res.status < 300) {
+        console.info("successfully loaded translations");
         return res.json();
       }
 
@@ -57,7 +54,7 @@
     if (typeof(translated) !== "undefined") {
 			ele.textContent = translated;
     } else {
-      console.log("Could not translate website: path '%s' not found", path);
+      console.warn("Could not translate website: path '%s' not found", path);
     }
   }
 
@@ -76,7 +73,7 @@
   }
 
   function translate(obj, ancestor) {
-    ancestor = ancestor || document;
+    ancestor = ancestor || document.documentElement;
 
     if(getLang(ancestor) === languageDialect) {
       if(!ancestor.hasAttribute("i18n")) {
