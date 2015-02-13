@@ -13,7 +13,7 @@ describe("light-i18n", function() {
 
     it("should work when property is not nested", function(done) {
       ele.setAttribute("i18n", "test");
-      
+
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test1");
         done();
@@ -25,8 +25,23 @@ describe("light-i18n", function() {
       ele.setAttribute("i18n", "test42");
       ele.innerHTML = "test43";
 
-      console.warn = function(_, path) {
+      console.warn = function(_, ele2, path) {
+        expect(ele2).to.be.equal(ele);
         expect(path).to.be.equal("test42");
+        console.warn = warn;
+        done();
+      };
+      i18n.translate(ele);
+    });
+
+    it("should warn & not change anything when object", function(done) {
+      var warn = console.warn;
+      ele.setAttribute("i18n", "test2");
+      ele.innerHTML = "test43";
+
+      console.warn = function(_, ele2, path) {
+        expect(ele2).to.be.equal(ele);
+        expect(path).to.be.equal("test2");
         console.warn = warn;
         done();
       };
