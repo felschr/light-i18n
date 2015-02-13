@@ -2,7 +2,7 @@
 /* jshint browser: true */
 
 // Base function.
-var i18n = (function(global) {
+(function(global) {
 		"use strict";
 		var language = window.navigator.userLanguage || window.navigator.language,
 						searchTerms = window.location.search.slice(1).split("&");
@@ -63,7 +63,7 @@ var i18n = (function(global) {
 		language = language.split("-")[0];
 		loadTranslations(language.toLowerCase());
 
-		return {
+		global.i18n = {
 				set language(lang) {
 						language = String(lang);
 				},
