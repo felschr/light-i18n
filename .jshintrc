@@ -12,5 +12,6 @@
     "trailing": true,
     "indent": 2,
     "eqeqeq": true,
-    "predef": ["fetch"]
+    "predef": ["fetch"],
+    "quotmark": "double"
 }

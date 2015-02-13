@@ -3,13 +3,12 @@
 
 // Base function.
 (function(global) {
-		"use strict";
+    "use strict";
 		var language = window.navigator.userLanguage || window.navigator.language,
 						searchTerms = window.location.search.slice(1).split("&");
 
 		function loadTranslations(language, set, base) {
-				var url = (base || "locales/") + language + "/" + (set || "translation") + ".json",
-								xhr;
+				var url = (base || "locales/") + language + "/" + (set || "translation") + ".json";
 
 				console.info("loading translations from: " + url);
 				return fetch(url, {
@@ -71,4 +70,4 @@
 						return language;
 				}
 		};
-})(self);
+})(this);
