@@ -2,7 +2,7 @@
 /* jshint browser: true */
 
 // Base function.
-var i18n = function() {
+var i18n = (function(global) {
 	"use strict";
 	var language = window.navigator.userLanguage || window.navigator.language,
 			searchTerms = window.location.search.substring(1).split(/[?&]/);
@@ -80,12 +80,5 @@ var i18n = function() {
 	loadTranslations(language.toLowerCase());
 
 	return true;
-};
+})(self);
 
-
-// Version.
-i18n.VERSION = '0.0.0';
-
-
-// Export to the root, which is probably `window`.
-root.i18n = i18n;
