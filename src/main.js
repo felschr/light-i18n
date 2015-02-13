@@ -63,7 +63,7 @@
   function getLang(ele, threshold) {
     do {
       if(ele.lang) {
-        return ele.lang;
+        return ele.lang.toLowerCase();
       }
     } while((ele = ele.parentElement) && ele !== threshold);
   }
