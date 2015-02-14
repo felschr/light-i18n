@@ -118,9 +118,8 @@
   }
 
   global.i18n = {
-    translations: translations,
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
-    set: (document.documentElement.getAttribute("data-i18n-set") || "translations"),
+    set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
     translate: function(ele) {
       return this.translations.then(function(obj) {
         translate(obj, ele);
@@ -140,5 +139,5 @@
     }
   };
 
-  translations = loadAndApplyTranslations(language);
+  global.i18n.translations = loadAndApplyTranslations(language);
 }(this));
