@@ -15,7 +15,7 @@
       translations;
 
   function loadTranslations(language, set, base) {
-    var url = (base || "locales/") + language + "/" + (set || "translation") + ".json";
+    var url = (base || "") + language + "/" + (set || "translation") + ".json";
     console.info("loading translations from: " + url);
 
     return fetch(url, {
@@ -117,10 +117,9 @@
     }
   }
 
-  translations = loadAndApplyTranslations(language);
-
   global.i18n = {
     translations: translations,
+    base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     translate: function(ele) {
       return this.translations.then(function(obj) {
         translate(obj, ele);
@@ -139,4 +138,6 @@
       return language;
     }
   };
+
+  translations = loadAndApplyTranslations(language, undefined, undefined, global.i18n.base);
 }(this));
