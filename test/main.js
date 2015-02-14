@@ -21,7 +21,7 @@ describe("light-i18n", function() {
     });
 
     it("should remove previous content", function(done) {
-      ele.setAttribute("i18n", "test");
+      ele.setAttribute("data-i18n", "test");
       ele.innerHTML = "test123";
 
       i18n.translate(ele).then(function() {
