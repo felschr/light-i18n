@@ -2,17 +2,17 @@
   "use strict";
 
   var languageDialect = (function(lang) {
-  		window.location.search.slice(1).split("&").some(function (searchTerm) {
-  			if (searchTerm.indexOf("lang=") === 0) {
-  				lang = searchTerm.split("=").slice(1).join("=");
-  				return true;
-  			}
-  		});
+        window.location.search.slice(1).split("&").some(function (searchTerm) {
+          if (searchTerm.indexOf("lang=") === 0) {
+            lang = searchTerm.split("=").slice(1).join("=");
+            return true;
+          }
+        });
 
-  		return lang.toLowerCase();
-  	})(window.navigator.userLanguage || window.navigator.language),
-    language = languageDialect.split("-")[0],
-    translations;
+        return lang.toLowerCase();
+      })(window.navigator.userLanguage || window.navigator.language),
+      language = languageDialect.split("-")[0],
+      translations;
 
   function loadTranslations(language, set, base) {
     var url = (base || "locales/") + language + "/" + (set || "translation") + ".json";
@@ -49,7 +49,7 @@
   }
 
   function applyTranslation(ele, path, obj) {
-		var translated = getByPath(obj, path);
+    var translated = getByPath(obj, path);
 
     if (typeof(translated) === "undefined") {
       console.warn("Could not translate %o: path '%s' not found", ele, path);
@@ -57,7 +57,7 @@
       console.warn("Could not translate %o: path '%s' is of type object", ele, path);
     } else {
       clean(ele);
-			ele.appendChild(toDom(translated));
+      ele.appendChild(toDom(translated));
     }
   }
 
@@ -127,12 +127,12 @@
       });
     },
     set language(lang) {
-			lang = String(lang);
+      lang = String(lang);
 
-			if(lang !== language) {
-      	language = lang;
+      if(lang !== language) {
+        language = lang;
         translations = loadAndApplyTranslations(lang);
-			}
+      }
     },
     get language() {
       return language;
