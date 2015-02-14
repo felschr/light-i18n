@@ -86,7 +86,7 @@
         return frag;
       }, document.createDocumentFragment());
     }
-    return new Text(content);
+    return document.createTextNode(content);
   }
 
   function getByPath(obj, path) {
