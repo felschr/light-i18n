@@ -15,7 +15,8 @@
       Translations = (function() {
         var scope = "_scope";
 
-        function Translations(o) {
+        function Translations(language, o) {
+          this.language = language;
           this[scope] = o;
         }
 
@@ -26,15 +27,15 @@
         };
 
         Translations.prototype.translate = function(ele) {
-          if(getLang(ele) === languageDialect) {
+          if(getLang(ele) === this.language) {
             if(!ele.hasAttribute("data-i18n")) {
-              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(this.translate.bind(this));
+              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + this.language + "'])")).forEach(this.translate.bind(this));
             }
           } else if(ele.hasAttribute("data-i18n")) {
             applyTranslationToElement(ele, this);
           } else {
             [].slice.call(ele.querySelectorAll("[data-i18n]")).map(function(match) {
-              if(getLang(match, ele) !== languageDialect) {
+              if(getLang(match, ele) !== this.language) {
                 applyTranslationToElement(match, this);
               }
             });
@@ -108,7 +109,7 @@
           console.info("successfully loaded translations");
 
           return res.json().then(function(obj) {
-            return new Translations(obj);
+            return new Translations(lang || language, obj);
           });
         }
 
