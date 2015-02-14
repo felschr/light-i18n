@@ -43,8 +43,8 @@
   }
 
   function applyTranslationToElement(ele, obj) {
-    if(ele.hasAttribute("i18n")) {
-      applyTranslation(ele, ele.getAttribute("i18n"), obj);
+    if(ele.hasAttribute("data-i18n")) {
+      applyTranslation(ele, ele.getAttribute("data-i18n"), obj);
     }
   }
 
@@ -91,16 +91,16 @@
     ancestor = ancestor || document.documentElement;
 
     if(getLang(ancestor) === languageDialect) {
-      if(!ancestor.hasAttribute("i18n")) {
+      if(!ancestor.hasAttribute("data-i18n")) {
         [].slice.call(ancestor.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(translate.bind(null, obj));
       }
       return;
     }
 
-    if(ancestor.hasAttribute("i18n")) {
+    if(ancestor.hasAttribute("data-i18n")) {
       applyTranslationToElement(ancestor, obj);
     } else {
-      [].slice.call(ancestor.querySelectorAll("[i18n]")).forEach(function(ele) {
+      [].slice.call(ancestor.querySelectorAll("[data-i18n]")).forEach(function(ele) {
         if(getLang(ele, ancestor) !== languageDialect) {
           applyTranslationToElement(ele, obj);
         }

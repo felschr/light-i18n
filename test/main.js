@@ -12,7 +12,7 @@ describe("light-i18n", function() {
     });
 
     it("should work when property is not nested", function(done) {
-      ele.setAttribute("i18n", "test");
+      ele.setAttribute("data-i18n", "test");
 
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test1");
@@ -22,7 +22,7 @@ describe("light-i18n", function() {
 
     it("should warn & not change anything when undefined", function(done) {
       var warn = console.warn;
-      ele.setAttribute("i18n", "test42");
+      ele.setAttribute("data-i18n", "test42");
       ele.innerHTML = "test43";
 
       console.warn = function(_, ele2, path) {
@@ -36,7 +36,7 @@ describe("light-i18n", function() {
 
     it("should warn & not change anything when object", function(done) {
       var warn = console.warn;
-      ele.setAttribute("i18n", "test2");
+      ele.setAttribute("data-i18n", "test2");
       ele.innerHTML = "test43";
 
       console.warn = function(_, ele2, path) {
@@ -49,7 +49,7 @@ describe("light-i18n", function() {
     });
 
     it("should work when nested", function(done) {
-      ele.setAttribute("i18n", "test2.test4");
+      ele.setAttribute("data-i18n", "test2.test4");
 
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test5");
@@ -58,7 +58,7 @@ describe("light-i18n", function() {
     });
 
     it("should work when nested", function(done) {
-      ele.setAttribute("i18n", "test2.test4");
+      ele.setAttribute("data-i18n", "test2.test4");
 
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test5");
@@ -67,7 +67,7 @@ describe("light-i18n", function() {
     });
 
     it("should work when number", function(done) {
-      ele.setAttribute("i18n", "test2.test3");
+      ele.setAttribute("data-i18n", "test2.test3");
 
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("42");
@@ -77,7 +77,7 @@ describe("light-i18n", function() {
 
     it("should not translate if lang attribute matches dialect", function(done) {
       // "test": "test1"
-      ele.setAttribute("i18n", "test");
+      ele.setAttribute("data-i18n", "test");
       ele.innerHTML = "test";
       ele.lang = navigator.userLanguage || navigator.language;
 
@@ -89,7 +89,7 @@ describe("light-i18n", function() {
 
     it("should add every element of an array as paragraph", function(done) {
       // "testArray": ["test1", "test2"]
-      ele.setAttribute("i18n", "testArray");
+      ele.setAttribute("data-i18n", "testArray");
 
       i18n.translate(ele).then(function() {
         expect(ele.children.length).to.be.equal(2);

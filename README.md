@@ -50,9 +50,9 @@ Set up the translations in a JSON file like this:
 }
 ```
 
-You can set the translation on an HTML element via the attribute `i18n`:
+You can set the translation on an HTML element via the attribute `data-i18n`:
 ```HTML
-<p i18n="content.welcomeMsg">Welcome</p>
+<p data-i18n="content.welcomeMsg">Welcome</p>
 ```
 The example above will show "Welcome" as default text and if a translation with the key `content.welcomeMsg` is available it will insert the translation to the innerHTML of the element.
 
