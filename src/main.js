@@ -142,6 +142,7 @@
       });
     },
     translateAll: function() {
+      this.translatedAll = true;
       return this.translate(document.documentElement);
     },
     set language(lang) {
@@ -149,7 +150,9 @@
 
       if(lang !== language) {
         language = lang;
-        translations = loadAndApplyTranslations(lang);
+        if(this.translatedAll) {
+          this.translateAll(lang);
+        }
       }
     },
     get language() {
