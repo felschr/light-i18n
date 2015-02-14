@@ -37,11 +37,9 @@
   function applyTranslation(ele, path, obj) {
     var translated = obj.find(path);
 
-    if (typeof(translated) === "undefined") {
-      console.warn("Could not translate %o: path '%s' not found", ele, path);
-    } else if (typeof(translated) === "object" && !Array.isArray(translated)) {
+    if (typeof(translated) === "object" && !Array.isArray(translated)) {
       console.warn("Could not translate %o: path '%s' is of type object", ele, path);
-    } else {
+    } else if(typeof(translated) !== "undefined") {
       clean(ele);
       ele.appendChild(toDom(translated));
       ele.lang = language;

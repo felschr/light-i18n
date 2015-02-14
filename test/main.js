@@ -41,18 +41,14 @@ describe("light-i18n", function() {
       });
     });
 
-    it("should warn & not change anything when undefined", function(done) {
-      var warn = console.warn;
+    it("should not change anything when undefined", function(done) {
       ele.setAttribute("data-i18n", "test42");
       ele.innerHTML = "test43";
 
-      console.warn = function(_, ele2, path) {
-        expect(ele2).to.be.equal(ele);
-        expect(path).to.be.equal("test42");
-        console.warn = warn;
+      i18n.translate(ele).then(function() {
+        expect(ele.innerHTML).to.be.equal("test43");
         done();
-      };
-      i18n.translate(ele);
+      });
     });
 
     it("should warn & not change anything when object", function(done) {
