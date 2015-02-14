@@ -58,6 +58,7 @@
     } else {
       clean(ele);
       ele.appendChild(toDom(translated));
+      ele.lang = language;
     }
   }
 

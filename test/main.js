@@ -31,6 +31,16 @@ describe("light-i18n", function() {
       });
     });
 
+    it("should set lang attribute", function(done) {
+      ele.setAttribute("data-i18n", "test");
+      ele.lang = "de";
+
+      i18n.translate(ele).then(function() {
+        expect(ele.lang).to.be.equal(i18n.language);
+        done();
+      });
+    });
+
     it("should warn & not change anything when undefined", function(done) {
       var warn = console.warn;
       ele.setAttribute("data-i18n", "test42");
