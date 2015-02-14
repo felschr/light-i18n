@@ -14,7 +14,7 @@
       language = languageDialect.split("-")[0],
       translations,
       QueryableObject = (function() {
-        var scope = Symbol("scope");
+        var scope = "_scope";
 
         function QueryableObject(o) {
           this[scope] = o;
@@ -119,7 +119,7 @@
       }).then(function (res) {
         if (res.status >= 200 && res.status < 300) {
           console.info("successfully loaded translations");
-          
+
           return res.json().then(function(obj) {
             return new QueryableObject(obj);
           });
