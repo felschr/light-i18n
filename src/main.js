@@ -12,20 +12,38 @@
         return lang.toLowerCase();
       })(window.navigator.userLanguage || window.navigator.language),
       language = languageDialect.split("-")[0],
-      QueryableObject = (function() {
+      Translations = (function() {
         var scope = "_scope";
 
-        function QueryableObject(o) {
+        function Translations(o) {
           this[scope] = o;
         }
 
-        QueryableObject.prototype.find = function(path) {
+        Translations.prototype.find = function(path) {
           return path.split(".").reduce(function (obj, key) {
             return obj ? obj[key] : undefined;
           }, this[scope]);
         };
 
-        return QueryableObject;
+        Translations.prototype.translate = function(ele) {
+          if(getLang(ele) === languageDialect) {
+            if(!ele.hasAttribute("data-i18n")) {
+              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(this.translate.bind(this));
+            }
+          } else if(ele.hasAttribute("data-i18n")) {
+            applyTranslationToElement(ele, this);
+          } else {
+            [].slice.call(ele.querySelectorAll("[data-i18n]")).map(function(match) {
+              if(getLang(match, ele) !== languageDialect) {
+                applyTranslationToElement(match, this);
+              }
+            });
+          }
+
+          return ele;
+        };
+
+        return Translations;
       }());
 
   function applyTranslationToElement(ele, obj) {
@@ -90,7 +108,7 @@
           console.info("successfully loaded translations");
 
           return res.json().then(function(obj) {
-            return new QueryableObject(obj);
+            return new Translations(obj);
           });
         }
 
@@ -105,27 +123,8 @@
         this.translations = this.loadTranslations();
       }
 
-      return this.translations.then(function(obj) {
-        if(getLang(ele) === languageDialect) {
-          if(!ele.hasAttribute("data-i18n")) {
-            return Promise.all([].slice.call(ele.querySelectorAll("[lang]:not([lang='" + language + "'])")).map(global.i18n.translate.bind(global.i18n))).then(function() {
-              return ele;
-            });
-          }
-
-          return Promise.resolve(ele);
-        }
-
-        if(ele.hasAttribute("data-i18n")) {
-          applyTranslationToElement(ele, obj);
-        } else {
-          [].slice.call(ele.querySelectorAll("[data-i18n]")).forEach(function(match) {
-            if(getLang(match, ele) !== languageDialect) {
-              applyTranslationToElement(match, obj);
-            }
-          });
-        }
-        return obj;
+      return this.translations.then(function(translations) {
+        return translations.translate(ele);
       });
     },
     translateAll: function() {
