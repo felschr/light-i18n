@@ -12,6 +12,6 @@
   "eqeqeq": true,
   "browser": true,
   "devel": true,
-  "predef": ["fetch"],
+  "predef": ["fetch", "Symbol"],
   "quotmark": "double"
 }

@@ -12,31 +12,25 @@
         return lang.toLowerCase();
       })(window.navigator.userLanguage || window.navigator.language),
       language = languageDialect.split("-")[0],
-      translations;
+      translations,
+      QueryableObject = (function() {
+        var scope = Symbol("scope");
 
-  function loadTranslations(language, set, base) {
-    var url = (base || global.i18n.base || "") + language + "/" + (set || global.i18n.set) + ".json";
-    console.info("loading translations from: " + url);
+        function QueryableObject(o) {
+          this[scope] = o;
+        }
 
-    return fetch(url, {
-      headers: {
-        "Accept": "application/json"
-      }
-    }).then(function (res) {
-      if (res.status >= 200 && res.status < 300) {
-        console.info("successfully loaded translations");
-        return res.json();
-      }
+        QueryableObject.prototype.find = function(path) {
+          return path.split(".").reduce(function (obj, key) {
+            return obj ? obj[key] : undefined;
+          }, this[scope]);
+        };
 
-      // TODO add error object instead of false
-      return Promise.reject(false);
-    }).catch(function (err) {
-      console.error("Error loading translations: %o", err);
-    });
-  }
+        return QueryableObject;
+      }());
 
   function loadAndApplyTranslations(language, ancestor, set, base) {
-    return loadTranslations(language, set, base).then(function (obj) {
+    return global.i18n.loadTranslations(language, set, base).then(function (obj) {
       translate(obj, ancestor);
       return obj;
     });
@@ -49,7 +43,7 @@
   }
 
   function applyTranslation(ele, path, obj) {
-    var translated = getByPath(obj, path);
+    var translated = obj.find(path);
 
     if (typeof(translated) === "undefined") {
       console.warn("Could not translate %o: path '%s' not found", ele, path);
@@ -90,12 +84,6 @@
     return document.createTextNode(content);
   }
 
-  function getByPath(obj, path) {
-    return path.split(".").reduce(function (obj, key) {
-      return obj ? obj[key] : undefined;
-    }, obj);
-  }
-
   function translate(obj, ancestor) {
     ancestor = ancestor || document.documentElement;
 
@@ -120,6 +108,29 @@
   global.i18n = {
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
+    loadTranslations: function(language, set, base) {
+      var url = (base || this.base || "") + language + "/" + (set || this.set) + ".json";
+      console.info("loading translations from: " + url);
+
+      return fetch(url, {
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then(function (res) {
+        if (res.status >= 200 && res.status < 300) {
+          console.info("successfully loaded translations");
+          
+          return res.json().then(function(obj) {
+            return new QueryableObject(obj);
+          });
+        }
+
+        // TODO add error object instead of false
+        return Promise.reject(false);
+      }).catch(function (err) {
+        console.error("Error loading translations: %o", err);
+      });
+    },
     translate: function(ele) {
       return this.translations.then(function(obj) {
         translate(obj, ele);
