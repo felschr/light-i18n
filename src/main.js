@@ -132,6 +132,10 @@
       });
     },
     translate: function(ele) {
+      if(!this.translations) {
+        this.loadTranslations();
+      }
+
       return this.translations.then(function(obj) {
         translate(obj, ele);
         return obj;
