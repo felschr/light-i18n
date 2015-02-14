@@ -14,29 +14,8 @@
       language = languageDialect.split("-")[0],
       translations;
 
-  function loadTranslations(language, set, base) {
-    var url = (base || global.i18n.base || "") + language + "/" + (set || global.i18n.set) + ".json";
-    console.info("loading translations from: " + url);
-
-    return fetch(url, {
-      headers: {
-        "Accept": "application/json"
-      }
-    }).then(function (res) {
-      if (res.status >= 200 && res.status < 300) {
-        console.info("successfully loaded translations");
-        return res.json();
-      }
-
-      // TODO add error object instead of false
-      return Promise.reject(false);
-    }).catch(function (err) {
-      console.error("Error loading translations: %o", err);
-    });
-  }
-
   function loadAndApplyTranslations(language, ancestor, set, base) {
-    return loadTranslations(language, set, base).then(function (obj) {
+    return global.i18n.loadTranslations(language, set, base).then(function (obj) {
       translate(obj, ancestor);
       return obj;
     });
@@ -120,6 +99,26 @@
   global.i18n = {
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
+    loadTranslations: function(language, set, base) {
+      var url = (base || this.base || "") + language + "/" + (set || this.set) + ".json";
+      console.info("loading translations from: " + url);
+
+      return fetch(url, {
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then(function (res) {
+        if (res.status >= 200 && res.status < 300) {
+          console.info("successfully loaded translations");
+          return res.json();
+        }
+
+        // TODO add error object instead of false
+        return Promise.reject(false);
+      }).catch(function (err) {
+        console.error("Error loading translations: %o", err);
+      });
+    },
     translate: function(ele) {
       return this.translations.then(function(obj) {
         translate(obj, ele);
