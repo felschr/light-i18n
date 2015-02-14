@@ -108,8 +108,8 @@
   global.i18n = {
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
-    loadTranslations: function(language, set, base) {
-      var url = (base || this.base || "") + language + "/" + (set || this.set) + ".json";
+    loadTranslations: function(lang, set, base) {
+      var url = (base || this.base || "") + (lang || language) + "/" + (set || this.set) + ".json";
       console.info("loading translations from: " + url);
 
       return fetch(url, {
