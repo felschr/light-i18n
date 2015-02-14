@@ -74,27 +74,6 @@
     return document.createTextNode(content);
   }
 
-  function translate(obj, ancestor) {
-    ancestor = ancestor || document.documentElement;
-
-    if(getLang(ancestor) === languageDialect) {
-      if(!ancestor.hasAttribute("data-i18n")) {
-        [].slice.call(ancestor.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(translate.bind(null, obj));
-      }
-      return;
-    }
-
-    if(ancestor.hasAttribute("data-i18n")) {
-      applyTranslationToElement(ancestor, obj);
-    } else {
-      [].slice.call(ancestor.querySelectorAll("[data-i18n]")).forEach(function(ele) {
-        if(getLang(ele, ancestor) !== languageDialect) {
-          applyTranslationToElement(ele, obj);
-        }
-      });
-    }
-  }
-
   global.i18n = {
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
@@ -127,7 +106,25 @@
       }
 
       return this.translations.then(function(obj) {
-        translate(obj, ele);
+        if(getLang(ele) === languageDialect) {
+          if(!ele.hasAttribute("data-i18n")) {
+            return Promise.all([].slice.call(ele.querySelectorAll("[lang]:not([lang='" + language + "'])")).map(global.i18n.translate.bind(global.i18n))).then(function() {
+              return ele;
+            });
+          }
+
+          return Promise.resolve(ele);
+        }
+
+        if(ele.hasAttribute("data-i18n")) {
+          applyTranslationToElement(ele, obj);
+        } else {
+          [].slice.call(ele.querySelectorAll("[data-i18n]")).forEach(function(match) {
+            if(getLang(match, ele) !== languageDialect) {
+              applyTranslationToElement(match, obj);
+            }
+          });
+        }
         return obj;
       });
     },
