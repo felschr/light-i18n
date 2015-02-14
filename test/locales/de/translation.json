@@ -1,0 +1,14 @@
+{
+  "test": "test1 de",
+  "test2": {
+    "test3": 84,
+    "test4": "test5 de"
+  },
+  "testArray": ["test1 de", "test2 de"],
+  "testAll0": "result 0 de",
+  "testAll1": "result 1 de",
+  "testAll2": "result 2 de",
+  "testAll3": "result 3 de",
+  "testAll4": "result 4 de",
+  "langTest": "de"
+}
