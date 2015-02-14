@@ -12,7 +12,22 @@
         return lang.toLowerCase();
       })(window.navigator.userLanguage || window.navigator.language),
       language = languageDialect.split("-")[0],
-      translations;
+      translations,
+      QueryableObject = (function() {
+        var scope = Symbol("scope");
+
+        function QueryableObject(o) {
+          this[scope] = o;
+        }
+
+        QueryableObject.prototype.find = function(path) {
+          return path.split(".").reduce(function (obj, key) {
+            return obj ? obj[key] : undefined;
+          }, this[scope]);
+        };
+
+        return QueryableObject;
+      }());
 
   function loadAndApplyTranslations(language, ancestor, set, base) {
     return global.i18n.loadTranslations(language, set, base).then(function (obj) {
@@ -28,7 +43,7 @@
   }
 
   function applyTranslation(ele, path, obj) {
-    var translated = getByPath(obj, path);
+    var translated = obj.find(path);
 
     if (typeof(translated) === "undefined") {
       console.warn("Could not translate %o: path '%s' not found", ele, path);
@@ -69,12 +84,6 @@
     return document.createTextNode(content);
   }
 
-  function getByPath(obj, path) {
-    return path.split(".").reduce(function (obj, key) {
-      return obj ? obj[key] : undefined;
-    }, obj);
-  }
-
   function translate(obj, ancestor) {
     ancestor = ancestor || document.documentElement;
 
@@ -110,7 +119,10 @@
       }).then(function (res) {
         if (res.status >= 200 && res.status < 300) {
           console.info("successfully loaded translations");
-          return res.json();
+          
+          return res.json().then(function(obj) {
+            return new QueryableObject(obj);
+          });
         }
 
         // TODO add error object instead of false
