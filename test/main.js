@@ -59,6 +59,7 @@ describe("light-i18n", function() {
       console.warn = function(_, ele2, path) {
         expect(ele2).to.be.equal(ele);
         expect(path).to.be.equal("test2");
+        expect(ele.innerHTML).to.be.equal("test43");
         console.warn = warn;
         done();
       };
