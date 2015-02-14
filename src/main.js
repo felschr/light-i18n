@@ -150,8 +150,11 @@
 
       if(lang !== language) {
         language = lang;
+
         if(this.translatedAll) {
           this.translateAll(lang);
+        } else if(this.translations) {
+          this.translations = this.loadTranslations();
         }
       }
     },
