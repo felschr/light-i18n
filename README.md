@@ -30,9 +30,9 @@ It should look like this:
 .
 └── locales
     ├── en
-    │   ├── translation.json
+    │   └── translation.json
     ├── de
-    │   ├── translation.json
+    │   └── translation.json
     └── fr
         └── translation.json
 ```
