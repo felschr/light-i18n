@@ -20,6 +20,17 @@ describe("light-i18n", function() {
       });
     });
 
+    it("should remove previous content", function(done) {
+      ele.setAttribute("i18n", "test");
+      ele.innerHTML = "test123";
+
+      i18n.translate(ele).then(function() {
+        expect(ele.childNodes.length).to.be.equal(1);
+        expect(ele.innerHTML).to.be.equal("test1");
+        done();
+      });
+    });
+
     it("should warn & not change anything when undefined", function(done) {
       var warn = console.warn;
       ele.setAttribute("i18n", "test42");
@@ -92,11 +103,11 @@ describe("light-i18n", function() {
       ele.setAttribute("i18n", "testArray");
 
       i18n.translate(ele).then(function() {
-        expect(ele.children.length).to.be.equal(2);
-        expect(ele.children[0].nodeName).to.be.equal("P");
-        expect(ele.children[1].nodeName).to.be.equal("P");
-        expect(ele.children[0].innerHTML).to.be.equal("test1");
-        expect(ele.children[1].innerHTML).to.be.equal("test2");
+        expect(ele.childNodes.length).to.be.equal(2);
+        expect(ele.childNodes[0].nodeName).to.be.equal("P");
+        expect(ele.childNodes[1].nodeName).to.be.equal("P");
+        expect(ele.childNodes[0].innerHTML).to.be.equal("test1");
+        expect(ele.childNodes[1].innerHTML).to.be.equal("test2");
         done();
       });
     });

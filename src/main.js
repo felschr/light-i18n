@@ -56,6 +56,7 @@
     } else if (typeof(translated) === "object" && !Array.isArray(translated)) {
       console.warn("Could not translate %o: path '%s' is of type object", ele, path);
     } else {
+      clean(ele);
 			ele.appendChild(toDom(translated));
     }
   }
@@ -66,6 +67,13 @@
         return ele.lang.toLowerCase();
       }
     } while((ele = ele.parentElement) && ele !== threshold);
+  }
+
+  function clean(ele) {
+    var child;
+    while((child = ele.firstChild)) {
+      ele.removeChild(child);
+    }
   }
 
   function toDom(content) {
