@@ -38,7 +38,7 @@
               if(getLang(match, ele) !== this.language) {
                 applyTranslationToElement(match, this);
               }
-            });
+            }, this);
           }
 
           return ele;
@@ -138,10 +138,11 @@
       if(lang !== language) {
         language = lang;
 
+        if(this.translations) {
+          this.translations = this.loadTranslations();
+        }
         if(this.translatedAll) {
           this.translateAll(lang);
-        } else if(this.translations) {
-          this.translations = this.loadTranslations();
         }
       }
     },
