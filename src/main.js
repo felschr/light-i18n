@@ -133,7 +133,7 @@
     },
     translate: function(ele) {
       if(!this.translations) {
-        this.loadTranslations();
+        this.translations = this.loadTranslations();
       }
 
       return this.translations.then(function(obj) {
