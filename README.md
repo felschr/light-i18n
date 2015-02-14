@@ -6,8 +6,6 @@ A lightweight, client-based internationalization library for javascript.
 
 An JavaScript library by Felix Schröter.
 
-See the [project homepage](http://FelschR.github.io/light-i18n).
-
 ## Installation
 
 ###manual installation
