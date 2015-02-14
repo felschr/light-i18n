@@ -56,6 +56,7 @@
     } else if (typeof(translated) === "object" && !Array.isArray(translated)) {
       console.warn("Could not translate %o: path '%s' is of type object", ele, path);
     } else {
+      clean(ele);
 			ele.appendChild(toDom(translated));
     }
   }
@@ -68,6 +69,13 @@
     } while((ele = ele.parentElement) && ele !== threshold);
   }
 
+  function clean(ele) {
+    var child;
+    while((child = ele.firstChild)) {
+      ele.removeChild(child);
+    }
+  }
+
   function toDom(content) {
     if(Array.isArray(content)) {
       return content.reduce(function(frag, text) {
@@ -78,7 +86,7 @@
         return frag;
       }, document.createDocumentFragment());
     }
-    return new Text(content);
+    return document.createTextNode(content);
   }
 
   function getByPath(obj, path) {
