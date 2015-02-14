@@ -12,7 +12,6 @@
         return lang.toLowerCase();
       })(window.navigator.userLanguage || window.navigator.language),
       language = languageDialect.split("-")[0],
-      translations,
       QueryableObject = (function() {
         var scope = "_scope";
 
@@ -28,13 +27,6 @@
 
         return QueryableObject;
       }());
-
-  function loadAndApplyTranslations(language, ancestor, set, base) {
-    return global.i18n.loadTranslations(language, set, base).then(function (obj) {
-      translate(obj, ancestor);
-      return obj;
-    });
-  }
 
   function applyTranslationToElement(ele, obj) {
     if(ele.hasAttribute("data-i18n")) {
