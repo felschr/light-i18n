@@ -15,7 +15,7 @@
       translations;
 
   function loadTranslations(language, set, base) {
-    var url = (base || "") + language + "/" + String(set) + ".json";
+    var url = (base || global.i18n.base || "") + language + "/" + (set || global.i18n.set) + ".json";
     console.info("loading translations from: " + url);
 
     return fetch(url, {
@@ -140,5 +140,5 @@
     }
   };
 
-  translations = loadAndApplyTranslations(language, undefined, global.i18n.set, global.i18n.base);
+  translations = loadAndApplyTranslations(language);
 }(this));
