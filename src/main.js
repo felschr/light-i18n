@@ -137,6 +137,9 @@
         return obj;
       });
     },
+    translateAll: function() {
+      return this.translate(document.documentElement);
+    },
     set language(lang) {
       lang = String(lang);
 
