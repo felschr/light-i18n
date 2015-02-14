@@ -157,5 +157,7 @@
     }
   };
 
-  global.i18n.translations = loadAndApplyTranslations(language);
+  if(!document.documentElement.hasAttribute("data-i18n-disable-auto")) {
+    global.i18n.translateAll();
+  }
 }(this));
