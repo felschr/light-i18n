@@ -133,7 +133,7 @@
     },
     translate: function(ele) {
       if(!this.translations) {
-        this.loadTranslations();
+        this.translations = this.loadTranslations();
       }
 
       return this.translations.then(function(obj) {
@@ -142,6 +142,7 @@
       });
     },
     translateAll: function() {
+      this.translatedAll = true;
       return this.translate(document.documentElement);
     },
     set language(lang) {
@@ -149,7 +150,12 @@
 
       if(lang !== language) {
         language = lang;
-        translations = loadAndApplyTranslations(lang);
+
+        if(this.translatedAll) {
+          this.translateAll(lang);
+        } else if(this.translations) {
+          this.translations = this.loadTranslations();
+        }
       }
     },
     get language() {
