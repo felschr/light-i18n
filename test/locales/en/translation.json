@@ -4,5 +4,11 @@
     "test3": 42,
     "test4": "test5"
   },
-  "testArray": ["test1", "test2"]
+  "testArray": ["test1", "test2"],
+  "testAll0": "result 0",
+  "testAll1": "result 1",
+  "testAll2": "result 2",
+  "testAll3": "result 3",
+  "testAll4": "result 4",
+  "langTest": "en"
 }

@@ -4,6 +4,29 @@
 "use strict";
 
 describe("light-i18n", function() {
+  describe("#loadTranslations(lang, set, base)", function() {
+    it("should load translations for current language when no lang attribute is given", function(done) {
+      i18n.loadTranslations().then(function(obj) {
+        expect(obj.fetch("langTest")).to.be.equal("en");
+        expect(obj.fetch("test2.test3")).to.be.equal(42);
+        done();
+      });
+    });
+
+    it("should load translations for given language", function(done) {
+      i18n.loadTranslations("de").then(function(obj) {
+        expect(obj.fetch("langTest")).to.be.equal("de");
+        expect(obj.fetch("test2.test3")).to.be.equal(84);
+        done();
+      });
+    });
+
+    it("should load no translations for non-existing language", function(done) {
+      i18n.loadTranslations("ka").catch(function() {
+        done();
+      });
+    });
+  });
   describe("#translate(ele)", function() {
     var ele;
 
@@ -117,6 +140,40 @@ describe("light-i18n", function() {
         expect(ele.childNodes[1].innerHTML).to.be.equal("test2");
         done();
       });
+    });
+  });
+  describe("#translateAll()", function() {
+    var ele,
+        testEle,
+        i;
+
+    beforeEach(function() {
+      testEle = document.createElement("div");
+      document.documentElement.appendChild(testEle);
+
+      for (i = 0; i < 5; i++) {
+        ele = document.createElement("div");
+        ele.setAttribute("data-i18n", "testAll" + i);
+        testEle.appendChild(ele);
+      }
+    });
+
+    it("should return document.documentElement with all translations applied", function(done) {
+      i18n.translateAll().then(function() {
+        i = 0;
+        [].slice.call(testEle.children).forEach(function(ele) {
+          expect(ele).to.be.equal("testAll" + i);
+          i++;
+        });
+        done();
+      });
+    });
+  });
+  describe("#language", function() {
+    it("should return new language when setting it", function(done) {
+      i18n.language = "fr";
+      expect(i18n.language).to.be.equal("fr");
+      done();
     });
   });
 });
