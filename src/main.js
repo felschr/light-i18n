@@ -53,10 +53,10 @@
 
     if (typeof(translated) === "undefined") {
       console.warn("Could not translate %o: path '%s' not found", ele, path);
-    } else if (typeof(translated) === "object") {
+    } else if (typeof(translated) === "object" && !Array.isArray(translated)) {
       console.warn("Could not translate %o: path '%s' is of type object", ele, path);
     } else {
-			ele.textContent = translated;
+			ele.appendChild(toDom(translated));
     }
   }
 
@@ -66,6 +66,19 @@
         return ele.lang.toLowerCase();
       }
     } while((ele = ele.parentElement) && ele !== threshold);
+  }
+
+  function toDom(content) {
+    if(Array.isArray(content)) {
+      return content.reduce(function(frag, text) {
+        var ele = document.createElement("p");
+        ele.textContent = text;
+        frag.appendChild(ele);
+
+        return frag;
+      }, document.createDocumentFragment());
+    }
+    return new Text(content);
   }
 
   function getByPath(obj, path) {

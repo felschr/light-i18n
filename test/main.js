@@ -86,5 +86,19 @@ describe("light-i18n", function() {
         done();
       });
     });
+
+    it("should add every element of an array as paragraph", function(done) {
+      // "testArray": ["test1", "test2"]
+      ele.setAttribute("i18n", "testArray");
+
+      i18n.translate(ele).then(function() {
+        expect(ele.children.length).to.be.equal(2);
+        expect(ele.children[0].nodeName).to.be.equal("P");
+        expect(ele.children[1].nodeName).to.be.equal("P");
+        expect(ele.children[0].innerHTML).to.be.equal("test1");
+        expect(ele.children[1].innerHTML).to.be.equal("test2");
+        done();
+      });
+    });
   });
 });

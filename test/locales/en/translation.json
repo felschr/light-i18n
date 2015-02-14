@@ -3,5 +3,6 @@
   "test2": {
     "test3": 42,
     "test4": "test5"
-  }
+  },
+  "testArray": ["test1", "test2"]
 }
