@@ -15,7 +15,8 @@
       Translations = (function() {
         var scope = "_scope";
 
-        function Translations(o) {
+        function Translations(language, o) {
+          this.language = language;
           this[scope] = o;
         }
 
@@ -26,24 +27,39 @@
         };
 
         Translations.prototype.translate = function(ele) {
-          if(getLang(ele) === languageDialect) {
+          if(getLang(ele) === this.language) {
             if(!ele.hasAttribute("data-i18n")) {
-              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + language + "'])")).forEach(this.translate.bind(this));
+              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + this.language + "'])")).forEach(this.translate, this);
             }
           } else if(ele.hasAttribute("data-i18n")) {
             applyTranslationToElement(ele, this);
           } else {
             [].slice.call(ele.querySelectorAll("[data-i18n]")).map(function(match) {
-              if(getLang(match, ele) !== languageDialect) {
+              if(getLang(match, ele) !== this.language) {
                 applyTranslationToElement(match, this);
               }
-            });
+            }, this);
           }
 
           return ele;
         };
 
         return Translations;
+      }()),
+      debug = (function() {
+        var debug = {
+          enabled: false
+        };
+
+        ["info", "warn", "error"].forEach(function(name) {
+          debug[name] = function() {
+            if(this.enabled) {
+              console[name].apply(console, arguments);
+            }
+          };
+        });
+
+        return debug;
       }());
 
   function applyTranslationToElement(ele, obj) {
@@ -56,7 +72,7 @@
     var translated = obj.find(path);
 
     if (typeof(translated) === "object" && !Array.isArray(translated)) {
-      console.warn("Could not translate %o: path '%s' is of type object", ele, path);
+      debug.warn("Could not translate %o: path '%s' is of type object", ele, path);
     } else if(typeof(translated) !== "undefined") {
       clean(ele);
       ele.appendChild(toDom(translated));
@@ -96,8 +112,13 @@
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
     loadTranslations: function(lang, set, base) {
-      var url = (base || this.base || "") + (lang || language) + "/" + (set || this.set) + ".json";
-      console.info("loading translations from: " + url);
+      var url;
+      base = base || this.base || "";
+      lang = lang || language;
+      set = set || this.set;
+      url = base + lang + "/" + set + ".json";
+
+      debug.info("loading translations for %s from: %s", lang, url);
 
       return fetch(url, {
         headers: {
@@ -105,17 +126,18 @@
         }
       }).then(function (res) {
         if (res.status >= 200 && res.status < 300) {
-          console.info("successfully loaded translations");
+          debug.info("successfully loaded translations for %s", lang);
 
           return res.json().then(function(obj) {
-            return new Translations(obj);
+            return new Translations(lang || language, obj);
           });
         }
 
         // TODO add error object instead of false
         return Promise.reject(false);
       }).catch(function (err) {
-        console.error("Error loading translations: %o", err);
+        debug.error("Error loading translations for %s: %o", lang, err);
+        return Promise.reject(err);
       });
     },
     translate: function(ele) {
@@ -137,15 +159,23 @@
       if(lang !== language) {
         language = lang;
 
+        if(this.translations) {
+          this.translations = this.loadTranslations();
+        }
         if(this.translatedAll) {
           this.translateAll(lang);
-        } else if(this.translations) {
-          this.translations = this.loadTranslations();
         }
       }
     },
     get language() {
       return language;
+    },
+
+    get debug() {
+      return debug.enabled;
+    },
+    set debug(val) {
+      debug.enabled = Boolean(val);
     }
   };
 

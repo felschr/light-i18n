@@ -1,32 +1,89 @@
-/* global i18n, describe, it, beforeEach, expect */
+/* global i18n, describe, it, beforeEach, afterEach, expect */
 /* jshint globalstrict: true, devel: true */
 
 "use strict";
 
 describe("light-i18n", function() {
+  var langDialect = navigator.userLanguage || navigator.language,
+    lang = langDialect.split("-")[0],
+    expectObjectMethod = function(obj, name, cb, callOld) {
+      var old = obj[name],
+        ret = {
+          args: undefined,
+          cleanup: function() {
+            obj[name] = old;
+          },
+          target: obj,
+          toNotHaveBeenCalled: function() {
+            return expect(ret.args).to.be.an("undefined");
+          },
+          toHaveBeenCalled: function() {
+            return expect(ret.args).to.not.be.an("undefined");
+          }
+        };
+
+      ret.toHaveBeenCalled.with = function(args, start, end) {
+        return expect(ret.args.slice(start || 0, end)).to.be.eql(args);
+      };
+      ret.toNotHaveBeenCalled.with = function(args, start, end) {
+        return expect(ret.args.slice(start || 0, end)).to.not.be.eql(args);
+      };
+
+      obj[name] = function() {
+        ret.args = [].slice.call(arguments);
+        if(cb) {
+          cb.call(ret);
+        }
+        if(callOld) {
+          return old.apply(this, arguments);
+        }
+      };
+
+      return ret;
+    },
+    expectConsoleMethod = function(name, cb) {
+      return expectObjectMethod(console, name, cb);
+    };
+
   describe("#loadTranslations(lang, set, base)", function() {
     it("should load translations for current language when no lang attribute is given", function(done) {
       i18n.loadTranslations().then(function(obj) {
-        expect(obj.fetch("langTest")).to.be.equal("en");
-        expect(obj.fetch("test2.test3")).to.be.equal(42);
+        expect(obj.language).to.be.equal(lang);
         done();
       });
     });
 
     it("should load translations for given language", function(done) {
       i18n.loadTranslations("de").then(function(obj) {
-        expect(obj.fetch("langTest")).to.be.equal("de");
-        expect(obj.fetch("test2.test3")).to.be.equal(84);
+        expect(obj.language).to.be.equal("de");
         done();
       });
     });
 
-    it("should load no translations for non-existing language", function(done) {
+    it("should load no translations for non-existing language and not call console.error", function(done) {
+      var expectError = expectConsoleMethod("error");
+
       i18n.loadTranslations("ka").catch(function() {
+        expectError.toNotHaveBeenCalled();
+        expectError.cleanup();
+        done();
+      });
+    });
+
+    it("should load no translations for non-existing language and call console.error after enabling debug", function(done) {
+      var expectError = expectConsoleMethod("error");
+      i18n.debug = true;
+
+      i18n.loadTranslations("ka").catch(function() {
+        i18n.debug = false;
+        expectError.toHaveBeenCalled();
+        expectError.cleanup();
+
         done();
       });
     });
   });
+
   describe("#translate(ele)", function() {
     var ele;
 
@@ -74,19 +131,27 @@ describe("light-i18n", function() {
       });
     });
 
-    it("should warn & not change anything when object", function(done) {
-      var warn = console.warn;
+    it("should not warn & not change anything when object", function(done) {
+      var expectWarn = expectConsoleMethod("warn");
       ele.setAttribute("data-i18n", "test2");
       ele.innerHTML = "test43";
 
-      console.warn = function(_, ele2, path) {
-        expect(ele2).to.be.equal(ele);
-        expect(path).to.be.equal("test2");
-        expect(ele.innerHTML).to.be.equal("test43");
-        console.warn = warn;
+      i18n.translate(ele).then(function() {
+        expectWarn.toNotHaveBeenCalled();
         done();
-      };
-      i18n.translate(ele);
+      });
+    });
+
+    it("should warn & not change anything when object and debug", function(done) {
+      var expectWarn = expectConsoleMethod("warn");
+      ele.setAttribute("data-i18n", "test2");
+      ele.innerHTML = "test43";
+      i18n.debug = true;
+
+      i18n.translate(ele).then(function() {
+        expectWarn.toHaveBeenCalled.with([ele, "test2"], 1);
+        done();
+      });
     });
 
     it("should work when nested", function(done) {
@@ -116,11 +181,11 @@ describe("light-i18n", function() {
       });
     });
 
-    it("should not translate if lang attribute matches dialect", function(done) {
+    it("should not translate if lang attribute matches language", function(done) {
       // "test": "test1"
       ele.setAttribute("data-i18n", "test");
       ele.innerHTML = "test";
-      ele.lang = navigator.userLanguage || navigator.language;
+      ele.lang = lang;
 
       i18n.translate(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test");
@@ -142,38 +207,48 @@ describe("light-i18n", function() {
       });
     });
   });
+
   describe("#translateAll()", function() {
-    var ele,
-        testEle,
-        i;
+    var testEle;
 
     beforeEach(function() {
-      testEle = document.createElement("div");
-      document.documentElement.appendChild(testEle);
+      var i, ele;
 
-      for (i = 0; i < 5; i++) {
+      testEle = document.createElement("div");
+      testEle.hidden = true;
+
+      for (i = 0; i < 5; ++i) {
         ele = document.createElement("div");
         ele.setAttribute("data-i18n", "testAll" + i);
         testEle.appendChild(ele);
       }
+
+      document.body.appendChild(testEle);
     });
 
     it("should return document.documentElement with all translations applied", function(done) {
       i18n.translateAll().then(function() {
-        i = 0;
-        [].slice.call(testEle.children).forEach(function(ele) {
-          expect(ele).to.be.equal("testAll" + i);
-          i++;
+        [].slice.call(testEle.children).forEach(function(ele, i) {
+          expect(ele.innerHTML).to.be.equal("result " + i);
         });
         done();
       });
     });
+
+    afterEach(function() {
+      document.body.removeChild(testEle);
+    });
   });
+
   describe("#language", function() {
     it("should return new language when setting it", function(done) {
-      i18n.language = "fr";
-      expect(i18n.language).to.be.equal("fr");
-      done();
+      i18n.language = "de";
+      expect(i18n.language).to.be.equal("de");
+
+      i18n.translations.then(function(obj) {
+        expect(obj.language).to.be.equal("de");
+        done();
+      });
     });
   });
 });
