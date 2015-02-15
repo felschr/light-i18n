@@ -29,7 +29,7 @@
         Translations.prototype.translate = function(ele) {
           if(getLang(ele) === this.language) {
             if(!ele.hasAttribute("data-i18n")) {
-              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + this.language + "'])")).forEach(this.translate.bind(this));
+              [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + this.language + "'])")).forEach(this.translate, this);
             }
           } else if(ele.hasAttribute("data-i18n")) {
             applyTranslationToElement(ele, this);
