@@ -5,7 +5,45 @@
 
 describe("light-i18n", function() {
   var langDialect = navigator.userLanguage || navigator.language,
-    lang = langDialect.split("-")[0];
+    lang = langDialect.split("-")[0],
+    expectObjectMethod = function(obj, name, cb, callOld) {
+      var old = obj[name],
+        ret = {
+          args: undefined,
+          cleanup: function() {
+            obj[name] = old;
+          },
+          target: obj,
+          toNotHaveBeenCalled: function() {
+            return expect(ret.args).to.be.an("undefined");
+          },
+          toHaveBeenCalled: function() {
+            return expect(ret.args).to.not.be.an("undefined");
+          }
+        };
+
+      ret.toHaveBeenCalled.with = function(args, start, end) {
+        return expect(ret.args.slice(start || 0, end)).to.be.eql(args);
+      };
+      ret.toNotHaveBeenCalled.with = function(args, start, end) {
+        return expect(ret.args.slice(start || 0, end)).to.not.be.eql(args);
+      };
+
+      obj[name] = function() {
+        ret.args = [].slice.call(arguments);
+        if(cb) {
+          cb.call(ret);
+        }
+        if(callOld) {
+          return old.apply(this, arguments);
+        }
+      };
+
+      return ret;
+    },
+    expectConsoleMethod = function(name, cb) {
+      return expectObjectMethod(console, name, cb);
+    };
 
   describe("#loadTranslations(lang, set, base)", function() {
     it("should load translations for current language when no lang attribute is given", function(done) {
@@ -22,15 +60,25 @@ describe("light-i18n", function() {
       });
     });
 
-    it("should load no translations for non-existing language", function(done) {
-      var error = console.error;
-      console.error = function(_, e) {
-        expect(e).to.be.equal(e);
-        console.error = error;
-        done();
-      };
+    it("should load no translations for non-existing language and not call console.error", function(done) {
+      var expectError = expectConsoleMethod("error");
 
       i18n.loadTranslations("ka").catch(function() {
+        expectError.toNotHaveBeenCalled();
+        expectError.cleanup();
+        done();
+      });
+    });
+
+    it("should load no translations for non-existing language and call console.error after enabling debug", function(done) {
+      var expectError = expectConsoleMethod("error");
+      i18n.debug = true;
+
+      i18n.loadTranslations("ka").catch(function() {
+        i18n.debug = false;
+        expectError.toHaveBeenCalled();
+        expectError.cleanup();
+
         done();
       });
     });
@@ -83,19 +131,27 @@ describe("light-i18n", function() {
       });
     });
 
-    it("should warn & not change anything when object", function(done) {
-      var warn = console.warn;
+    it("should not warn & not change anything when object", function(done) {
+      var expectWarn = expectConsoleMethod("warn");
       ele.setAttribute("data-i18n", "test2");
       ele.innerHTML = "test43";
 
-      console.warn = function(_, ele2, path) {
-        expect(ele2).to.be.equal(ele);
-        expect(path).to.be.equal("test2");
-        expect(ele.innerHTML).to.be.equal("test43");
-        console.warn = warn;
+      i18n.translate(ele).then(function() {
+        expectWarn.toNotHaveBeenCalled();
         done();
-      };
-      i18n.translate(ele);
+      });
+    });
+
+    it("should warn & not change anything when object and debug", function(done) {
+      var expectWarn = expectConsoleMethod("warn");
+      ele.setAttribute("data-i18n", "test2");
+      ele.innerHTML = "test43";
+      i18n.debug = true;
+
+      i18n.translate(ele).then(function() {
+        expectWarn.toHaveBeenCalled.with([ele, "test2"], 1);
+        done();
+      });
     });
 
     it("should work when nested", function(done) {
