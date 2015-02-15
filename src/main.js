@@ -153,6 +153,16 @@
       this.translatedAll = true;
       return this.translate(document.documentElement);
     },
+    get: function(path) {
+      if(!this.translations) {
+        this.translations = this.loadTranslations();
+      }
+
+      return this.translations.then(function(obj) {
+        return obj.find(path);
+      });
+    },
+
     set language(lang) {
       lang = String(lang);
 
