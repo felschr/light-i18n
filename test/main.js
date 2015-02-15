@@ -247,6 +247,21 @@ describe("light-i18n", function() {
 
       i18n.translations.then(function(obj) {
         expect(obj.language).to.be.equal("de");
+
+        i18n.language = "en";
+        expect(i18n.language).to.be.equal("en");
+        return i18n.translations;
+      }).then(function(obj) {
+        expect(obj.language).to.be.equal("en");
+        done();
+      });
+    });
+  });
+
+  describe("#get(path)", function() {
+    it("should work", function(done) {
+      Promise.all([i18n.get("test"), i18n.get("test2.test3"), i18n.get("test2.test4")]).then(function(vals) {
+        expect(vals).to.be.eql(["test1", 42, "test5"]);
         done();
       });
     });
