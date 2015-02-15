@@ -247,6 +247,12 @@ describe("light-i18n", function() {
 
       i18n.translations.then(function(obj) {
         expect(obj.language).to.be.equal("de");
+
+        i18n.language = "en";
+        expect(i18n.language).to.be.equal("en");
+        return i18n.translations;
+      }).then(function(obj) {
+        expect(obj.language).to.be.equal("en");
         done();
       });
     });
