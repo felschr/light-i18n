@@ -49,9 +49,9 @@ Set up the translations in a JSON file like this:
 ```
 You can set the translation on an HTML element via the attribute `data-i18n`:
 ```HTML
-<p data-i18n="content.imprint">Imprint</p>
+<p data-i18n="header.imprint">Imprint</p>
 ```
-The example above will show "Imprint" as default text and if a translation with the key `content.imprint` is available it will insert the translation to the innerHTML of the element.
+The example above will show "Imprint" as default text and if a translation with the key `header.imprint` is available it will insert the translation to the innerHTML of the element.
 
 As seen in the JSON it's also possible to use arrays. Using `data-i18n="content.intro"` will insert 2 HTML paragraphs.
 
