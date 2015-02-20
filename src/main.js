@@ -272,6 +272,12 @@
           debug.error("Error loading localisations for %s: %o", lang, err);
           return Promise.reject(err);
         });
+      },
+      loadDefault: function() {
+        return this.loaded || this.reloadDefault();
+      },
+      reloadDefault: function() {
+        return (this.loaded = this.load());
       }
     },
 
