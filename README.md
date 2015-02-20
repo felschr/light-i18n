@@ -10,7 +10,7 @@ An JavaScript library by Felix Schröter.
 
 ###manual installation
 To embed light-i18n into your HTML website include the following:
-```HTML
+```html
 <script src="scripts/light-i18n.js"></script>
 ```
 
@@ -36,7 +36,7 @@ It should look like this:
 ```
 
 Set up the translations in a JSON file like this:
-```JSON
+```json
 {
   "header": {
     "home": "Startseite",
@@ -48,7 +48,7 @@ Set up the translations in a JSON file like this:
 }
 ```
 You can set the translation on an HTML element via the attribute `data-i18n`:
-```HTML
+```html
 <p data-i18n="header.imprint">Imprint</p>
 ```
 The example above will show "Imprint" as default text and if a translation with the key `header.imprint` is available it will insert the translation to the innerHTML of the element.
