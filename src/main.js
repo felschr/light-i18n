@@ -1,4 +1,18 @@
-(function (global) {
+(function (global, factory) {
+  /* global module, define */
+
+  "use strict";
+
+  var i18n = factory();
+
+  if(typeof(module) === "object" && typeof(module.exports) === "object") {
+    module.exports = i18n;
+  } else if(typeof(define) === "function") {
+    define([], i18n);
+  } else {
+    global.i18n = i18n;
+  }
+}(this, function () {
   "use strict";
 
   var languageDialect = (function(lang) {
@@ -60,7 +74,8 @@
         });
 
         return debug;
-      }());
+      }()),
+      i18n;
 
   function applyTranslationToElement(ele, obj) {
     if(ele.hasAttribute("data-i18n")) {
@@ -108,7 +123,7 @@
     return document.createTextNode(content);
   }
 
-  global.i18n = {
+  i18n = {
     base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
     set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
     loadTranslations: function(lang, set, base) {
@@ -190,6 +205,8 @@
   };
 
   if(!document.documentElement.hasAttribute("data-i18n-disable-auto")) {
-    global.i18n.translateAll();
+    i18n.translateAll();
   }
-}(this));
+
+  return i18n;
+}));
