@@ -60,15 +60,15 @@
 
         return Translations;
       }()),
-      Formats = (function() {
+      Localisations = (function() {
         var scope = "_scope";
 
-        function Formats(language, o) {
+        function Localisations(language, o) {
           this.language = language;
           this[scope] = o;
         }
 
-        Formats.prototype.localise = function(node, type) {
+        Localisations.prototype.localise = function(node, type) {
           var isEle = node.nodeType === Node.ELEMENT_NODE,
             attr = ["DATA", "META"].indexOf(node.tagName) === -1 ? "value" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
             val = attr ? node.getAttribute(attr) : node.nodeValue;
@@ -82,7 +82,7 @@
           }
 
           if(!type) {
-            throw new Error("Formats.prototype.localise: missing type");
+            throw new Error("Localisations.prototype.localise: missing type");
           }
 
           switch(type) {
@@ -91,13 +91,13 @@
               break;
 
             default:
-              throw new Error("Formats.prototype.localise: missing type");
+              throw new Error("Localisations.prototype.localise: missing type");
           }
 
           node.nodeValue = val;
         };
 
-        Formats.prototype.localiseNumber = function(number) {
+        Localisations.prototype.localiseNumber = function(number) {
           var separator = [this.number.thousands, this.number.thousandths];
 
           return parseFloat(number).toString().split(".").map(function(part, i) {
@@ -125,7 +125,7 @@
           }).join(this.number.decimal);
         };
 
-        return Formats;
+        return Localisations;
       }()),
       debug = (function() {
         var debug = {
@@ -253,7 +253,7 @@
     },
 
     localisations: {
-      base: (document.documentElement.getAttribute("data-i18n-format-base") || "formats/"),
+      base: (document.documentElement.getAttribute("data-i18n-localisations-base") || "localisations/"),
       load: function(lang, base) {
         var url;
         base = base || this.base || "";
@@ -269,7 +269,7 @@
             debug.info("successfully loaded translations for %s", lang);
 
             return res.json().then(function(obj) {
-              return new Formats(lang || language, obj);
+              return new Localisations(lang || language, obj);
             });
           }
 
