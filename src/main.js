@@ -68,6 +68,34 @@
           this[scope] = o;
         }
 
+        Formats.prototype.localiseNumber = function(number) {
+          var separator = [this.number.thousands, this.number.thousandths];
+
+          return parseFloat(number).toString().split(".").map(function(part, i) {
+            var chrs = part.split(""),
+              length = chrs.length,
+              ret = [],
+              i2;
+
+            if(!i) {
+              chrs.reverse();
+            }
+
+            for(i2 = 0; i2 < length; i2 += 3) {
+              ret.push(chrs[i2], chrs[i2 + 1], chrs[i2 + 2]);
+              if(i2 + 3 < length) {
+                ret.push(separator[i]);
+              }
+            }
+
+            if(!i) {
+              ret.reverse();
+            }
+
+            return ret.join("");
+          }).join(this.number.decimal);
+        };
+
         return Formats;
       }()),
       debug = (function() {
