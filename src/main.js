@@ -191,13 +191,13 @@
   }
 
   i18n = {
-    base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
-    set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
+    translationBase: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
+    translationSet: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
     loadTranslations: function(lang, set, base) {
       var url;
-      base = base || this.base || "";
+      base = base || this.translationBase || "";
       lang = lang || language;
-      set = set || this.set;
+      set = set || this.translationSet;
       url = base + lang + "/" + set + ".json";
 
       debug.info("loading translations for %s from: %s", lang, url);
