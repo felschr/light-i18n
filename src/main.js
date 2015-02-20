@@ -60,6 +60,16 @@
 
         return Translations;
       }()),
+      Formats = (function() {
+        var scope = "_scope";
+
+        function Formats(language, o) {
+          this.language = language;
+          this[scope] = o;
+        }
+
+        return Formats;
+      }()),
       debug = (function() {
         var debug = {
           enabled: false
@@ -155,6 +165,7 @@
         return Promise.reject(err);
       });
     },
+
     translate: function(ele) {
       if(!this.translations) {
         this.translations = this.loadTranslations();
@@ -175,6 +186,34 @@
 
       return this.translations.then(function(obj) {
         return obj.find(path);
+      });
+    },
+
+    formatBase: (document.documentElement.getAttribute("data-i18n-format-base") || "formats/"),
+    loadFormats: function(lang, base) {
+      var url;
+      base = base || this.formatBase || "";
+      lang = lang || language;
+      url = base + lang + ".json";
+
+      return fetch(url, {
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then(function (res) {
+        if (res.status >= 200 && res.status < 300) {
+          debug.info("successfully loaded translations for %s", lang);
+
+          return res.json().then(function(obj) {
+            return new Formats(lang || language, obj);
+          });
+        }
+
+        // TODO add error object instead of false
+        return Promise.reject(false);
+      }).catch(function (err) {
+        debug.error("Error loading translations for %s: %o", lang, err);
+        return Promise.reject(err);
       });
     },
 
