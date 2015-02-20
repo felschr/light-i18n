@@ -12,7 +12,7 @@
         "long": "%Y-%m-%d",
         "short": "%{year2Digits}-%m-%d"
       },
-      "alternativeNumeric"
+      "alternativeNumeric": {
         "long": "%d.%m.%Y",
         "short": "%d.%m.%{year2Digits}"
       },
