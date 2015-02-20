@@ -3,7 +3,7 @@
 
 "use strict";
 
-describe("light-i18n", function() {
+describe("i18n.translations", function() {
   var langDialect = navigator.userLanguage || navigator.language,
     lang = langDialect.split("-")[0],
     expectObjectMethod = function(obj, name, cb, callOld) {
@@ -45,16 +45,16 @@ describe("light-i18n", function() {
       return expectObjectMethod(console, name, cb);
     };
 
-  describe("#loadTranslations(lang, set, base)", function() {
+  describe("#load(lang, set, base)", function() {
     it("should load translations for current language when no lang attribute is given", function(done) {
-      i18n.loadTranslations().then(function(obj) {
+      i18n.translations.load().then(function(obj) {
         expect(obj.language).to.be.equal(lang);
         done();
       });
     });
 
     it("should load translations for given language", function(done) {
-      i18n.loadTranslations("de").then(function(obj) {
+      i18n.translations.load("de").then(function(obj) {
         expect(obj.language).to.be.equal("de");
         done();
       });
@@ -63,7 +63,7 @@ describe("light-i18n", function() {
     it("should load no translations for non-existing language and not call console.error", function(done) {
       var expectError = expectConsoleMethod("error");
 
-      i18n.loadTranslations("ka").catch(function() {
+      i18n.translations.load("ka").catch(function() {
         expectError.toNotHaveBeenCalled();
         expectError.cleanup();
         done();
@@ -74,7 +74,7 @@ describe("light-i18n", function() {
       var expectError = expectConsoleMethod("error");
       i18n.debug = true;
 
-      i18n.loadTranslations("ka").catch(function() {
+      i18n.translations.load("ka").catch(function() {
         i18n.debug = false;
         expectError.toHaveBeenCalled();
         expectError.cleanup();
@@ -84,7 +84,7 @@ describe("light-i18n", function() {
     });
   });
 
-  describe("#translate(ele)", function() {
+  describe("#apply(ele)", function() {
     var ele;
 
     beforeEach(function() {
@@ -94,7 +94,7 @@ describe("light-i18n", function() {
     it("should work when property is not nested", function(done) {
       ele.setAttribute("data-i18n", "test");
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test1");
         done();
       });
@@ -104,7 +104,7 @@ describe("light-i18n", function() {
       ele.setAttribute("data-i18n", "test");
       ele.innerHTML = "test123";
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.childNodes.length).to.be.equal(1);
         expect(ele.innerHTML).to.be.equal("test1");
         done();
@@ -115,7 +115,7 @@ describe("light-i18n", function() {
       ele.setAttribute("data-i18n", "test");
       ele.lang = "de";
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.lang).to.be.equal(i18n.language);
         done();
       });
@@ -125,7 +125,7 @@ describe("light-i18n", function() {
       ele.setAttribute("data-i18n", "test42");
       ele.innerHTML = "test43";
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test43");
         done();
       });
@@ -136,7 +136,7 @@ describe("light-i18n", function() {
       ele.setAttribute("data-i18n", "test2");
       ele.innerHTML = "test43";
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expectWarn.toNotHaveBeenCalled();
         done();
       });
@@ -148,7 +148,7 @@ describe("light-i18n", function() {
       ele.innerHTML = "test43";
       i18n.debug = true;
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expectWarn.toHaveBeenCalled.with([ele, "test2"], 1);
         done();
       });
@@ -157,7 +157,7 @@ describe("light-i18n", function() {
     it("should work when nested", function(done) {
       ele.setAttribute("data-i18n", "test2.test4");
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test5");
         done();
       });
@@ -166,7 +166,7 @@ describe("light-i18n", function() {
     it("should work when nested", function(done) {
       ele.setAttribute("data-i18n", "test2.test4");
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test5");
         done();
       });
@@ -175,7 +175,7 @@ describe("light-i18n", function() {
     it("should work when number", function(done) {
       ele.setAttribute("data-i18n", "test2.test3");
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("42");
         done();
       });
@@ -187,7 +187,7 @@ describe("light-i18n", function() {
       ele.innerHTML = "test";
       ele.lang = lang;
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("test");
         done();
       });
@@ -197,7 +197,7 @@ describe("light-i18n", function() {
       // "testArray": ["test1", "test2"]
       ele.setAttribute("data-i18n", "testArray");
 
-      i18n.translate(ele).then(function() {
+      i18n.translations.apply(ele).then(function() {
         expect(ele.childNodes.length).to.be.equal(2);
         expect(ele.childNodes[0].nodeName).to.be.equal("P");
         expect(ele.childNodes[1].nodeName).to.be.equal("P");
@@ -208,7 +208,7 @@ describe("light-i18n", function() {
     });
   });
 
-  describe("#translateAll()", function() {
+  describe("#applyAll()", function() {
     var testEle;
 
     beforeEach(function() {
@@ -227,7 +227,7 @@ describe("light-i18n", function() {
     });
 
     it("should return document.documentElement with all translations applied", function(done) {
-      i18n.translateAll().then(function() {
+      i18n.translations.applyAll().then(function() {
         [].slice.call(testEle.children).forEach(function(ele, i) {
           expect(ele.innerHTML).to.be.equal("result " + i);
         });
@@ -245,12 +245,12 @@ describe("light-i18n", function() {
       i18n.language = "de";
       expect(i18n.language).to.be.equal("de");
 
-      i18n.translations.then(function(obj) {
+      i18n.translations.loaded.then(function(obj) {
         expect(obj.language).to.be.equal("de");
 
         i18n.language = "en";
         expect(i18n.language).to.be.equal("en");
-        return i18n.translations;
+        return i18n.translations.loaded;
       }).then(function(obj) {
         expect(obj.language).to.be.equal("en");
         done();
@@ -260,7 +260,9 @@ describe("light-i18n", function() {
 
   describe("#get(path)", function() {
     it("should work", function(done) {
-      Promise.all([i18n.get("test"), i18n.get("test2.test3"), i18n.get("test2.test4")]).then(function(vals) {
+      Promise.all(["test", "test2.test3", "test2.test4"].map(function(path) {
+        return i18n.translations.get(path);
+      })).then(function(vals) {
         expect(vals).to.be.eql(["test1", 42, "test5"]);
         done();
       });

@@ -191,87 +191,95 @@
   }
 
   i18n = {
-    translationBase: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
-    translationSet: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
-    loadTranslations: function(lang, set, base) {
-      var url;
-      base = base || this.translationBase || "";
-      lang = lang || language;
-      set = set || this.translationSet;
-      url = base + lang + "/" + set + ".json";
+    translations: {
+      base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
+      set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
 
-      debug.info("loading translations for %s from: %s", lang, url);
+      load: function(lang, set, base) {
+        var url;
+        base = base || this.base || "";
+        lang = lang || language;
+        set = set || this.set;
+        url = base + lang + "/" + set + ".json";
 
-      return fetch(url, {
-        headers: {
-          "Accept": "application/json"
-        }
-      }).then(function (res) {
-        if (res.status >= 200 && res.status < 300) {
-          debug.info("successfully loaded translations for %s", lang);
+        debug.info("loading translations for %s from: %s", lang, url);
 
-          return res.json().then(function(obj) {
-            return new Translations(lang || language, obj);
-          });
-        }
+        return fetch(url, {
+          headers: {
+            "Accept": "application/json"
+          }
+        }).then(function (res) {
+          if (res.status >= 200 && res.status < 300) {
+            debug.info("successfully loaded translations for %s", lang);
 
-        // TODO add error object instead of false
-        return Promise.reject(false);
-      }).catch(function (err) {
-        debug.error("Error loading translations for %s: %o", lang, err);
-        return Promise.reject(err);
-      });
-    },
+            return res.json().then(function(obj) {
+              return new Translations(lang || language, obj);
+            });
+          }
 
-    translate: function(ele) {
-      if(!this.translations) {
-        this.translations = this.loadTranslations();
+          // TODO add error object instead of false
+          return Promise.reject(false);
+        }).catch(function (err) {
+          debug.error("Error loading translations for %s: %o", lang, err);
+          return Promise.reject(err);
+        });
+      },
+      loadDefault: function() {
+        return this.loaded || this.reloadDefault();
+      },
+      reloadDefault: function() {
+        return (this.loaded = this.load());
+      },
+
+      apply: function(ele) {
+        this.loadDefault();
+
+        return this.loaded.then(function(translations) {
+          return translations.translate(ele);
+        });
+      },
+      applyAll: function() {
+        this.appliedAll = true;
+        return this.apply(document.documentElement);
+      },
+
+      get: function(path) {
+        this.loadDefault();
+
+        return this.loaded.then(function(obj) {
+          return obj.find(path);
+        });
       }
+    },
 
-      return this.translations.then(function(translations) {
-        return translations.translate(ele);
-      });
-    },
-    translateAll: function() {
-      this.translatedAll = true;
-      return this.translate(document.documentElement);
-    },
-    get: function(path) {
-      if(!this.translations) {
-        this.translations = this.loadTranslations();
+    localisations: {
+      base: (document.documentElement.getAttribute("data-i18n-format-base") || "formats/"),
+      load: function(lang, base) {
+        var url;
+        base = base || this.base || "";
+        lang = lang || language;
+        url = base + lang + ".json";
+
+        return fetch(url, {
+          headers: {
+            "Accept": "application/json"
+          }
+        }).then(function (res) {
+          if (res.status >= 200 && res.status < 300) {
+            debug.info("successfully loaded translations for %s", lang);
+
+            return res.json().then(function(obj) {
+              return new Formats(lang || language, obj);
+            });
+          }
+
+          // TODO add error object instead of false
+          return Promise.reject(false);
+        }).catch(function (err) {
+          debug.error("Error loading translations for %s: %o", lang, err);
+          return Promise.reject(err);
+        });
       }
-
-      return this.translations.then(function(obj) {
-        return obj.find(path);
-      });
-    },
-
-    formatBase: (document.documentElement.getAttribute("data-i18n-format-base") || "formats/"),
-    loadFormats: function(lang, base) {
-      var url;
-      base = base || this.formatBase || "";
-      lang = lang || language;
-      url = base + lang + ".json";
-
-      return fetch(url, {
-        headers: {
-          "Accept": "application/json"
-        }
-      }).then(function (res) {
-        if (res.status >= 200 && res.status < 300) {
-          debug.info("successfully loaded translations for %s", lang);
-
-          return res.json().then(function(obj) {
-            return new Formats(lang || language, obj);
-          });
-        }
-
-        // TODO add error object instead of false
-        return Promise.reject(false);
-      }).catch(function (err) {
-        debug.error("Error loading translations for %s: %o", lang, err);
-        return Promise.reject(err);
-      });
     },
 
     set language(lang) {
@@ -280,11 +288,11 @@
       if(lang !== language) {
         language = lang;
 
-        if(this.translations) {
-          this.translations = this.loadTranslations();
+        if(this.translations.loaded) {
+          this.translations.reloadDefault();
         }
-        if(this.translatedAll) {
-          this.translateAll(lang);
+        if(this.translations.appliedAll) {
+          this.translations.applyAll();
         }
       }
     },
@@ -301,7 +309,7 @@
   };
 
   if(!document.documentElement.hasAttribute("data-i18n-disable-auto")) {
-    i18n.translateAll();
+    i18n.translations.applyAll();
   }
 
   return i18n;
