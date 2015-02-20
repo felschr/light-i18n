@@ -235,9 +235,7 @@
       },
 
       apply: function(ele) {
-        this.loadDefault();
-
-        return this.loaded.then(function(translations) {
+        return this.loadDefault().then(function(translations) {
           return translations.translate(ele);
         });
       },
@@ -281,9 +279,7 @@
       },
 
       apply: function(ele) {
-        this.loadDefault();
-
-        return this.loaded.then(function(localisations) {
+        return this.loadDefault().then(function(localisations) {
           return localisations.localise(ele);
         });
       },
