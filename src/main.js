@@ -68,6 +68,30 @@
           this[scope] = o;
         }
 
+        Formats.prototype.localise = function(ele, type) {
+          var attrValue = ["DATA", "META"].indexOf(ele.tagName) === -1,
+            val = attrValue ? ele.getAttribute("value") : ele.nodeValue;
+
+          if(!type && ele.nodeType === Node.ELEMENT_NODE) {
+            type = ele.getAttribute("data-localise-as");
+          }
+
+          if(!type) {
+            throw new Error("Formats.prototype.localise: missing type");
+          }
+
+          switch(type) {
+            case "number":
+              val = this.localiseNumber(val);
+              break;
+
+            default:
+              throw new Error("Formats.prototype.localise: missing type");
+          }
+
+          ele.nodeValue = val;
+        };
+
         Formats.prototype.localiseNumber = function(number) {
           var separator = [this.number.thousands, this.number.thousandths];
 
