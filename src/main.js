@@ -278,6 +278,18 @@
       },
       reloadDefault: function() {
         return (this.loaded = this.load());
+      },
+
+      apply: function(ele) {
+        this.loadDefault();
+
+        return this.loaded.then(function(localisations) {
+          return localisations.localise(ele);
+        });
+      },
+      applyAll: function() {
+        this.appliedAll = true;
+        return this.apply(document.documentElement);
       }
     },
 
