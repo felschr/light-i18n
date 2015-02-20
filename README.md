@@ -10,7 +10,7 @@ An JavaScript library by Felix Schröter.
 
 ###manual installation
 To embed light-i18n into your HTML website include the following:
-```HTML
+```html
 <script src="scripts/light-i18n.js"></script>
 ```
 
