@@ -68,12 +68,17 @@
           this[scope] = o;
         }
 
-        Formats.prototype.localise = function(ele, type) {
-          var attrValue = ["DATA", "META"].indexOf(ele.tagName) === -1,
-            val = attrValue ? ele.getAttribute("value") : ele.nodeValue;
+        Formats.prototype.localise = function(node, type) {
+          var isEle = node.nodeType === Node.ELEMENT_NODE,
+            attr = ["DATA", "META"].indexOf(node.tagName) === -1 ? "value" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
+            val = attr ? node.getAttribute(attr) : node.nodeValue;
 
-          if(!type && ele.nodeType === Node.ELEMENT_NODE) {
-            type = ele.getAttribute("data-localise-as");
+          if(!attr && isEle) {
+            node.setAttribute("data-i18n-original", val);
+          }
+
+          if(!type && isEle) {
+            type = node.getAttribute("data-localise-as");
           }
 
           if(!type) {
@@ -89,7 +94,7 @@
               throw new Error("Formats.prototype.localise: missing type");
           }
 
-          ele.nodeValue = val;
+          node.nodeValue = val;
         };
 
         Formats.prototype.localiseNumber = function(number) {
