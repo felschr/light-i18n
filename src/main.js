@@ -190,6 +190,21 @@
     return document.createTextNode(content);
   }
 
+  function getJson(url) {
+    return fetch(url, {
+      headers: {
+        "Accept": "application/json"
+      }
+    }).then(function (res) {
+      if (res.status >= 200 && res.status < 300) {
+        return res.json();
+      }
+
+      // TODO add error object instead of false
+      return Promise.reject(false);
+    });
+  }
+
   i18n = {
     translations: {
       base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
@@ -204,21 +219,9 @@
 
         debug.info("loading translations for %s from: %s", lang, url);
 
-        return fetch(url, {
-          headers: {
-            "Accept": "application/json"
-          }
-        }).then(function (res) {
-          if (res.status >= 200 && res.status < 300) {
+        return getJson(url).then(function(obj) {
             debug.info("successfully loaded translations for %s", lang);
-
-            return res.json().then(function(obj) {
-              return new Translations(lang || language, obj);
-            });
-          }
-
-          // TODO add error object instead of false
-          return Promise.reject(false);
+            return new Translations(lang || language, obj);
         }).catch(function (err) {
           debug.error("Error loading translations for %s: %o", lang, err);
           return Promise.reject(err);
@@ -260,23 +263,13 @@
         lang = lang || language;
         url = base + lang + ".json";
 
-        return fetch(url, {
-          headers: {
-            "Accept": "application/json"
-          }
-        }).then(function (res) {
-          if (res.status >= 200 && res.status < 300) {
-            debug.info("successfully loaded translations for %s", lang);
+        debug.info("loading localisations for %s from: %s", lang, url);
 
-            return res.json().then(function(obj) {
-              return new Localisations(lang || language, obj);
-            });
-          }
-
-          // TODO add error object instead of false
-          return Promise.reject(false);
+        return getJson(url).then(function(obj) {
+            debug.info("successfully loaded localisations for %s", lang);
+            return new Localisations(lang || language, obj);
         }).catch(function (err) {
-          debug.error("Error loading translations for %s: %o", lang, err);
+          debug.error("Error loading localisations for %s: %o", lang, err);
           return Promise.reject(err);
         });
       }
