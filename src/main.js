@@ -236,10 +236,10 @@
         });
       },
       loadDefault: function() {
-        return this.loaded || this.reloadDefault();
+        return this.loaded || (this.loaded = this.load());
       },
       reloadDefault: function() {
-        return (this.loaded = this.load());
+        return this.loaded && (this.loaded = this.load());
       },
 
       apply: function(ele) {
@@ -280,10 +280,10 @@
         });
       },
       loadDefault: function() {
-        return this.loaded || this.reloadDefault();
+        return this.loaded || (this.loaded = this.load());
       },
       reloadDefault: function() {
-        return (this.loaded = this.load());
+        return this.loaded && (this.loaded = this.load());
       },
 
       apply: function(ele) {
