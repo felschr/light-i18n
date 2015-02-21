@@ -293,7 +293,12 @@
       },
       applyAll: function() {
         this.appliedAll = true;
-        return this.apply(document.documentElement);
+        return this.loadDefault().then(function(localisations) {
+          [].slice.call(document.querySelectorAll("[data-i18n-localise-as]")).forEach(function(ele) {
+            localisations.localise(ele);
+          });
+          return document.documentElement;
+        });
       }
     },
 
