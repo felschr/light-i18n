@@ -336,6 +336,7 @@
 
   if(!document.documentElement.hasAttribute("data-i18n-disable-auto")) {
     i18n.translations.applyAll();
+    i18n.localisations.applyAll();
   }
 
   return i18n;
