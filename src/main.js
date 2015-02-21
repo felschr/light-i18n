@@ -314,6 +314,12 @@
         if(this.translations.appliedAll) {
           this.translations.applyAll();
         }
+        if(this.localisations.loaded) {
+          this.localisations.reloadDefault();
+        }
+        if(this.localisations.appliedAll) {
+          this.localisations.applyAll();
+        }
       }
     },
     get language() {
