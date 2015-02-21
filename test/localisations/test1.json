@@ -23,8 +23,8 @@
     },
     "time": {
       "default": "full",
-      "full": "%H:%m:%s\u00A0Uhr",
-      "minutes": "%H:%m\u00A0Uhr",
+      "full": "%H:%i:%s\u00A0Uhr",
+      "minutes": "%H:%i\u00A0Uhr",
       "hours": "%{hourWithoutLeadingZero}\u00A0Uhr"
     }
   }
