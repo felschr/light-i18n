@@ -70,15 +70,15 @@
 
         Localisations.prototype.localise = function(node, type) {
           var isEle = node.nodeType === Node.ELEMENT_NODE,
-            attr = ["DATA", "META"].indexOf(node.tagName) === -1 ? "value" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
-            val = attr ? node.getAttribute(attr) : node.nodeValue;
+            attr = node.tagName === "DATA" ? "value" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
+            val = attr ? node.getAttribute(attr) : isEle ? node.innerHTML : node.nodeValue;
 
           if(!attr && isEle) {
             node.setAttribute("data-i18n-original", val);
           }
 
           if(!type && isEle) {
-            type = node.getAttribute("data-localise-as");
+            type = node.getAttribute("data-i18n-localise-as");
           }
 
           if(!type) {
@@ -94,17 +94,25 @@
               throw new Error("Localisations.prototype.localise: missing type");
           }
 
-          node.nodeValue = val;
+          if(isEle) {
+            node.innerHTML = val;
+          } else {
+            node.nodeValue = val;
+          }
         };
 
         Localisations.prototype.localiseNumber = function(number) {
-          var separator = [this.number.thousands, this.number.thousandths];
+          var separator = [this[scope].number.thousands, this[scope].number.thousandths];
 
           return parseFloat(number).toString().split(".").map(function(part, i) {
             var chrs = part.split(""),
               length = chrs.length,
               ret = [],
               i2;
+
+            if(length < 4) {
+              return part;
+            }
 
             if(!i) {
               chrs.reverse();
@@ -122,7 +130,7 @@
             }
 
             return ret.join("");
-          }).join(this.number.decimal);
+          }).join(this[scope].number.decimal);
         };
 
         return Localisations;
