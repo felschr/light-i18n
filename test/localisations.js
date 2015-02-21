@@ -206,6 +206,15 @@ describe("i18n.localisations", function() {
         done();
       });
     });
+
+    it("should work with time", function(done) {
+      var ele = factory("time", "time", "01:02:03");
+
+      i18n.localisations.apply(ele).then(function() {
+        expect(ele.innerHTML).to.be.equal("01:02:03&nbsp;Uhr");
+        done();
+      });
+    });
   });
 
   describe("#applyAll()", function() {
