@@ -91,6 +91,8 @@ describe("i18n.localisations", function() {
     ele.setAttribute("data-i18n-localise-as", type);
     if(tag === "data") {
       ele.setAttribute("value", value);
+    } else if(tag === "time") {
+      ele.setAttribute("datetime", value);
     } else {
       ele.nodeValue = value;
     }
@@ -192,6 +194,24 @@ describe("i18n.localisations", function() {
 
       i18n.localisations.apply(ele).then(function() {
         expect(ele.innerHTML).to.be.equal("0a424c242c4");
+        done();
+      });
+    });
+
+    it("should work with date", function(done) {
+      var ele = factory("time", "date", "2014-01-01");
+
+      i18n.localisations.apply(ele).then(function() {
+        expect(ele.innerHTML).to.be.equal("01.01.2014");
+        done();
+      });
+    });
+
+    it("should work with time", function(done) {
+      var ele = factory("time", "time", "01:02:03");
+
+      i18n.localisations.apply(ele).then(function() {
+        expect(ele.innerHTML).to.be.equal("01:02:03&nbsp;Uhr");
         done();
       });
     });

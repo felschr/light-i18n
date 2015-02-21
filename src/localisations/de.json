@@ -1,4 +1,4 @@
-{
+  {
   "number": {
     "decimal": ",",
     "thousands": "\u202F",
@@ -7,7 +7,7 @@
   },
   "time": {
     "date": {
-      "default": "alternativeNumeric",
+      "default": "alternativeNumeric.long",
       "numeric": {
         "long": "%Y-%m-%d",
         "short": "%{year2Digits}-%m-%d"
@@ -22,8 +22,9 @@
       }
     },
     "time": {
-      "full": "%H:%m:%s\u00A0Uhr",
-      "minutes": "%H:%m\u00A0Uhr",
+      "default": "full",
+      "full": "%H:%i:%s\u00A0Uhr",
+      "minutes": "%H:%i\u00A0Uhr",
       "hours": "%{hourWithoutLeadingZero}\u00A0Uhr"
     }
   }
