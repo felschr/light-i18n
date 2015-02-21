@@ -26,7 +26,12 @@
         return lang.toLowerCase();
       })(window.navigator.userLanguage || window.navigator.language),
       language = languageDialect.split("-")[0],
-      Translations = (function() {
+      findByPath = function (obj, path) {
+        return path.split(".").reduce(function (obj, key) {
+          return obj ? obj[key] : undefined;
+        }, obj);
+      },
+      Translations = (function () {
         var scope = "_scope";
 
         function Translations(language, o) {
@@ -35,9 +40,7 @@
         }
 
         Translations.prototype.find = function(path) {
-          return path.split(".").reduce(function (obj, key) {
-            return obj ? obj[key] : undefined;
-          }, this[scope]);
+          return findByPath(this[scope], path);
         };
 
         Translations.prototype.translate = function(ele) {
@@ -63,14 +66,113 @@
       Localisations = (function() {
         var scope = "_scope";
 
+        function Format(str) {
+          var tmp = "",
+            strs = [],
+            parts = [],
+            wasPercent = false,
+            open = false;
+
+          str.split("").forEach(function(chr) {
+            if(wasPercent) {
+              if(chr === "%") {
+                tmp += "%";
+              } else {
+                strs.push(tmp);
+                tmp = "";
+
+                if(chr === "{") {
+                  open = true;
+                } else {
+                  parts.push(chr);
+                }
+              }
+              wasPercent = false;
+            } else if(chr === "%") {
+              wasPercent = true;
+            } else if(open && chr === "}") {
+              parts.push(tmp);
+              tmp = "";
+              open = false;
+            } else {
+              tmp += chr;
+            }
+          });
+
+          if(strs.length === parts.length) {
+            strs.push(tmp);
+          }
+
+          this.parts = parts;
+          this.strs = strs;
+        }
+
+        Format.prototype.apply = function(obj) {
+          return new AppliedFormat(this, obj);
+        };
+
+        Format.parse = function(any) {
+          var ret;
+
+          if(typeof(any) === "object") {
+            if(Array.isArray(any)) {
+              return any.map(Format.parse.bind(Format));
+            } else {
+              ret = {};
+              Object.keys(any).forEach(function(key) {
+                ret[key] = Format.parse(any[key]);
+              });
+              return ret;
+            }
+          } else {
+            return new Format(String(any));
+          }
+        };
+
+        function AppliedFormat(format, obj) {
+          this.strs = format.strs;
+          this.values = format.parts.map(function(name) {
+            return typeof(obj[name]) === "function" ? obj[name]() : obj[name];
+          });
+        }
+
+        AppliedFormat.prototype.toString = function() {
+          var t = this;
+
+          return this.values.map(function(val, i) {
+            return t.strs[i] + val;
+          }).join("") + this.strs[this.strs.length - 1];
+        };
+
         function Localisations(language, o) {
           this.language = language;
           this[scope] = o;
+
+          if("time" in o) {
+            Object.keys(o.time).forEach(function(key) {
+              var val = o.time[key],
+                val2, def;
+
+              if(typeof(val) === "object" && "default" in val) {
+                def = val.default;
+                delete val.default;
+              }
+              val = Format.parse(val);
+              if(typeof(def) !== "undefined") {
+                val2 = findByPath(val, def);
+                Object.keys(val).forEach(function(key) {
+                  val2[key] = val[key];
+                });
+                val = val2;
+              }
+              o.time[key] = val;
+            });
+          }
         }
 
         Localisations.prototype.localise = function(node, type) {
           var isEle = node.nodeType === Node.ELEMENT_NODE,
-            attr = node.tagName === "DATA" ? "value" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
+            attr = node.tagName === "DATA" ? "value" : node.tagName === "TIME" ? "datetime" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
             val = attr ? node.getAttribute(attr) : isEle ? node.innerHTML : node.nodeValue;
 
           if(!attr && isEle) {
@@ -90,8 +192,16 @@
               val = this.localiseNumber(val);
               break;
 
+            case "date":
+              val = this.localiseDate(val);
+              break;
+
+            case "time":
+              val = this.localiseTime(val);
+              break;
+
             default:
-              throw new Error("Localisations.prototype.localise: missing type");
+              throw new Error("Localisations.prototype.localise: missing or invalidtype");
           }
 
           if(isEle) {
@@ -131,6 +241,57 @@
 
             return ret.join("");
           }).join(this[scope].number.decimal);
+        };
+
+        function padStr(str, len) {
+          str = String(str);
+          if(str.length >= len) {
+            return str;
+          }
+          return new Array(len - str.length + 1).join("0") + str;
+        }
+
+        Localisations.prototype.localiseDate = function(date, format) {
+          date = new Date(date);
+
+          if(format) {
+            format = findByPath(this[scope].time.date, format);
+          } else {
+            format = this[scope].time.date;
+          }
+          return format.apply({
+            "Y": function() {
+              return padStr(date.getFullYear(), 4);
+            },
+            "m": function() {
+              return padStr(date.getMonth() + 1, 2);
+            },
+            "d": function() {
+              return padStr(date.getDate(), 2);
+            }
+          }).toString();
+        };
+
+        Localisations.prototype.localiseTime = function(time, format) {
+          time = new Date("2014-01-01T" + time);
+
+          if(format) {
+            format = findByPath(this[scope].time.time, format);
+          } else {
+            format = this[scope].time.time;
+          }
+          return format.apply({
+            "H": function() {
+              console.log(time.getHours);
+              return padStr(time.getHours(), 2);
+            },
+            "i": function() {
+              return padStr(time.getMinutes(), 2);
+            },
+            "s": function() {
+              return padStr(time.getSeconds(), 2);
+            }
+          }).toString();
         };
 
         return Localisations;
