@@ -60,6 +60,81 @@
 
         return Translations;
       }()),
+      Localisations = (function() {
+        var scope = "_scope";
+
+        function Localisations(language, o) {
+          this.language = language;
+          this[scope] = o;
+        }
+
+        Localisations.prototype.localise = function(node, type) {
+          var isEle = node.nodeType === Node.ELEMENT_NODE,
+            attr = node.tagName === "DATA" ? "value" : (isEle && node.hasAttribute("data-i18n-original")) ? "data-i18n-original" : undefined,
+            val = attr ? node.getAttribute(attr) : isEle ? node.innerHTML : node.nodeValue;
+
+          if(!attr && isEle) {
+            node.setAttribute("data-i18n-original", val);
+          }
+
+          if(!type && isEle) {
+            type = node.getAttribute("data-i18n-localise-as");
+          }
+
+          if(!type) {
+            throw new Error("Localisations.prototype.localise: missing type");
+          }
+
+          switch(type) {
+            case "number":
+              val = this.localiseNumber(val);
+              break;
+
+            default:
+              throw new Error("Localisations.prototype.localise: missing type");
+          }
+
+          if(isEle) {
+            node.innerHTML = val;
+          } else {
+            node.nodeValue = val;
+          }
+        };
+
+        Localisations.prototype.localiseNumber = function(number) {
+          var separator = [this[scope].number.thousands, this[scope].number.thousandths];
+
+          return parseFloat(number).toString().split(".").map(function(part, i) {
+            var chrs = part.split(""),
+              length = chrs.length,
+              ret = [],
+              i2;
+
+            if(length < 4) {
+              return part;
+            }
+
+            if(!i) {
+              chrs.reverse();
+            }
+
+            for(i2 = 0; i2 < length; i2 += 3) {
+              ret.push(chrs[i2], chrs[i2 + 1], chrs[i2 + 2]);
+              if(i2 + 3 < length) {
+                ret.push(separator[i]);
+              }
+            }
+
+            if(!i) {
+              ret.reverse();
+            }
+
+            return ret.join("");
+          }).join(this[scope].number.decimal);
+        };
+
+        return Localisations;
+      }()),
       debug = (function() {
         var debug = {
           enabled: false
@@ -123,59 +198,108 @@
     return document.createTextNode(content);
   }
 
+  function getJson(url) {
+    return fetch(url, {
+      headers: {
+        "Accept": "application/json"
+      }
+    }).then(function (res) {
+      if (res.status >= 200 && res.status < 300) {
+        return res.json();
+      }
+
+      // TODO add error object instead of false
+      return Promise.reject(false);
+    });
+  }
+
   i18n = {
-    base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
-    set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
-    loadTranslations: function(lang, set, base) {
-      var url;
-      base = base || this.base || "";
-      lang = lang || language;
-      set = set || this.set;
-      url = base + lang + "/" + set + ".json";
+    translations: {
+      base: (document.documentElement.getAttribute("data-i18n-base") || "locales/"),
+      set: (document.documentElement.getAttribute("data-i18n-set") || "translation"),
 
-      debug.info("loading translations for %s from: %s", lang, url);
+      load: function(lang, set, base) {
+        var url;
+        base = base || this.base || "";
+        lang = lang || language;
+        set = set || this.set;
+        url = base + lang + "/" + set + ".json";
 
-      return fetch(url, {
-        headers: {
-          "Accept": "application/json"
-        }
-      }).then(function (res) {
-        if (res.status >= 200 && res.status < 300) {
-          debug.info("successfully loaded translations for %s", lang);
+        debug.info("loading translations for %s from: %s", lang, url);
 
-          return res.json().then(function(obj) {
+        return getJson(url).then(function(obj) {
+            debug.info("successfully loaded translations for %s", lang);
             return new Translations(lang || language, obj);
+        }).catch(function (err) {
+          debug.error("Error loading translations for %s: %o", lang, err);
+          return Promise.reject(err);
+        });
+      },
+      loadDefault: function() {
+        return this.loaded || (this.loaded = this.load());
+      },
+      reloadDefault: function() {
+        return this.loaded && (this.loaded = this.load());
+      },
+
+      apply: function(ele) {
+        return this.loadDefault().then(function(translations) {
+          return translations.translate(ele);
+        });
+      },
+      applyAll: function() {
+        this.appliedAll = true;
+        return this.apply(document.documentElement);
+      },
+
+      get: function(path) {
+        this.loadDefault();
+
+        return this.loaded.then(function(obj) {
+          return obj.find(path);
+        });
+      }
+    },
+
+    localisations: {
+      base: (document.documentElement.getAttribute("data-i18n-localisations-base") || "localisations/"),
+      load: function(lang, base) {
+        var url;
+        base = base || this.base || "";
+        lang = lang || language;
+        url = base + lang + ".json";
+
+        debug.info("loading localisations for %s from: %s", lang, url);
+
+        return getJson(url).then(function(obj) {
+            debug.info("successfully loaded localisations for %s", lang);
+            return new Localisations(lang || language, obj);
+        }).catch(function (err) {
+          debug.error("Error loading localisations for %s: %o", lang, err);
+          return Promise.reject(err);
+        });
+      },
+      loadDefault: function() {
+        return this.loaded || (this.loaded = this.load());
+      },
+      reloadDefault: function() {
+        return this.loaded && (this.loaded = this.load());
+      },
+
+      apply: function(ele) {
+        return this.loadDefault().then(function(localisations) {
+          return localisations.localise(ele);
+        });
+      },
+      applyAll: function() {
+        this.appliedAll = true;
+        return this.loadDefault().then(function(localisations) {
+          [].slice.call(document.querySelectorAll("[data-i18n-localise-as]")).forEach(function(ele) {
+            localisations.localise(ele);
           });
-        }
-
-        // TODO add error object instead of false
-        return Promise.reject(false);
-      }).catch(function (err) {
-        debug.error("Error loading translations for %s: %o", lang, err);
-        return Promise.reject(err);
-      });
-    },
-    translate: function(ele) {
-      if(!this.translations) {
-        this.translations = this.loadTranslations();
+          return document.documentElement;
+        });
       }
-
-      return this.translations.then(function(translations) {
-        return translations.translate(ele);
-      });
-    },
-    translateAll: function() {
-      this.translatedAll = true;
-      return this.translate(document.documentElement);
-    },
-    get: function(path) {
-      if(!this.translations) {
-        this.translations = this.loadTranslations();
-      }
-
-      return this.translations.then(function(obj) {
-        return obj.find(path);
-      });
     },
 
     set language(lang) {
@@ -184,11 +308,17 @@
       if(lang !== language) {
         language = lang;
 
-        if(this.translations) {
-          this.translations = this.loadTranslations();
+        if(this.translations.loaded) {
+          this.translations.reloadDefault();
         }
-        if(this.translatedAll) {
-          this.translateAll(lang);
+        if(this.translations.appliedAll) {
+          this.translations.applyAll();
+        }
+        if(this.localisations.loaded) {
+          this.localisations.reloadDefault();
+        }
+        if(this.localisations.appliedAll) {
+          this.localisations.applyAll();
         }
       }
     },
@@ -205,7 +335,8 @@
   };
 
   if(!document.documentElement.hasAttribute("data-i18n-disable-auto")) {
-    i18n.translateAll();
+    i18n.translations.applyAll();
+    i18n.localisations.applyAll();
   }
 
   return i18n;

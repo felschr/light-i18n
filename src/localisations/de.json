@@ -1,0 +1,30 @@
+{
+  "number": {
+    "decimal": ",",
+    "thousands": "\u202F",
+    "thousandths": "\u202F",
+    "unit": "\u202F"
+  },
+  "time": {
+    "date": {
+      "default": "alternativeNumeric",
+      "numeric": {
+        "long": "%Y-%m-%d",
+        "short": "%{year2Digits}-%m-%d"
+      },
+      "alternativeNumeric": {
+        "long": "%d.%m.%Y",
+        "short": "%d.%m.%{year2Digits}"
+      },
+      "alphanumeric": {
+        "long": "%d. %{monthName} %Y",
+        "short": "%d. %{monthNameShort}. %{year2Digits}"
+      }
+    },
+    "time": {
+      "full": "%H:%m:%s\u00A0Uhr",
+      "minutes": "%H:%m\u00A0Uhr",
+      "hours": "%{hourWithoutLeadingZero}\u00A0Uhr"
+    }
+  }
+}
