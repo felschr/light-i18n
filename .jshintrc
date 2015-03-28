@@ -1,0 +1,9 @@
+{
+    "asi": true,
+    "quotmark": "single",
+    "browser": true,
+    "devel": true,
+    "globalstrict": true,
+
+    "predef": ["Promise"]
+}

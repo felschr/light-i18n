@@ -1,6 +1,6 @@
 /* global i18n, describe, it, beforeEach, afterEach, expect */
 
-;'use strict'
+'use strict'
 
 describe('i18n.translations', function () {
   var langDialect = navigator.userLanguage || navigator.language

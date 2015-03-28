@@ -46,7 +46,7 @@
     Translations.prototype.translate = function (ele) {
       if (getLang(ele) === this.language) {
         if (!ele.hasAttribute('data-i18n')) {
-          [].slice.call(ele.querySelectorAll("[lang]:not([lang='" + this.language + "'])")).forEach(this.translate, this)
+          [].slice.call(ele.querySelectorAll('[lang]:not([lang="' + this.language + '"])')).forEach(this.translate, this)
         }
       } else if (ele.hasAttribute('data-i18n')) {
         applyTranslationToElement(ele, this)
@@ -323,7 +323,7 @@
     var translated = obj.find(path)
 
     if (typeof translated === 'object' && !Array.isArray(translated)) {
-      debug.warn("Could not translate %o: path '%s' is of type object", ele, path)
+      debug.warn('Could not translate %o: path "%s" is of type object', ele, path)
     } else if (typeof (translated) !== 'undefined') {
       clean(ele)
       ele.appendChild(toDom(translated))
