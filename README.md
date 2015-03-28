@@ -1,4 +1,4 @@
-# light-i18n
+# light-i18n [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard) [![Code Climate](https://codeclimate.com/github/FelschR/light-i18n/badges/gpa.svg)](https://codeclimate.com/github/FelschR/light-i18n)
 
 A lightweight, client-based internationalization library for javascript.
 
