@@ -1,10 +1,13 @@
 # light-i18n [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard) [![Code Climate](https://codeclimate.com/github/FelschR/light-i18n/badges/gpa.svg)](https://codeclimate.com/github/FelschR/light-i18n)
 
-A lightweight, client-based internationalization library for javascript.
+#### A lightweight, client-based internationalization library for javascript without the need of any server code.
+
+Translations can easily be implemented by creating json files for each language.
+Each translation can be referenced via ```data-i18n``` attribute of any HTML element. When the website is loaded the child elements of the elements with the ```data-i18n``` attribute will be replaced by the translation.
 
 ## About
 
-An JavaScript library by Felix Schröter.
+A javascript library by Felix Schröter and Malte-Maurice Dreyer.
 
 ## Installation
 
