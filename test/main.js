@@ -2,8 +2,10 @@
 
 'use strict'
 
-describe('i18n.language', function () {
-  it('should return new language when setting it', function (done) {
+var i18n = require('../src/main');
+
+describe('i18n.language', () => {
+  test('should return new language when setting it', done => {
     i18n.language = 'de'
     expect(i18n.language).to.be.equal('de')
 

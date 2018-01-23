@@ -2,7 +2,9 @@
 
 'use strict'
 
-describe('i18n.translations', function () {
+var i18n = require('../src/main');
+
+describe('i18n.translations', () => {
   var langDialect = navigator.userLanguage || navigator.language
   var lang = langDialect.split('-')[0]
   var expectObjectMethod = function (obj, name, cb, callOld) {
@@ -44,53 +46,62 @@ describe('i18n.translations', function () {
     return expectObjectMethod(console, name, cb)
   }
 
-  describe('#load(lang, set, base)', function () {
-    it('should load translations for current language when no lang attribute is given', function (done) {
-      i18n.translations.load().then(function (obj) {
-        expect(obj.language).to.be.equal(lang)
-        done()
-      })
-    })
+  describe('#load(lang, set, base)', () => {
+    test(
+      'should load translations for current language when no lang attribute is given',
+      done => {
+        i18n.translations.load().then(function (obj) {
+          expect(obj.language).to.be.equal(lang)
+          done()
+        })
+      }
+    )
 
-    it('should load translations for given language', function (done) {
+    test('should load translations for given language', done => {
       i18n.translations.load('de').then(function (obj) {
         expect(obj.language).to.be.equal('de')
         done()
       })
     })
 
-    it('should load no translations for non-existing language and not call console.error', function (done) {
-      var expectError = expectConsoleMethod('error')
+    test(
+      'should load no translations for non-existing language and not call console.error',
+      done => {
+        var expectError = expectConsoleMethod('error')
 
-      i18n.translations.load('ka').catch(function () {
-        expectError.toNotHaveBeenCalled()
-        expectError.cleanup()
-        done()
-      })
-    })
+        i18n.translations.load('ka').catch(function () {
+          expectError.toNotHaveBeenCalled()
+          expectError.cleanup()
+          done()
+        })
+      }
+    )
 
-    it('should load no translations for non-existing language and call console.error after enabling debug', function (done) {
-      var expectError = expectConsoleMethod('error')
-      i18n.debug = true
+    test(
+      'should load no translations for non-existing language and call console.error after enabling debug',
+      done => {
+        var expectError = expectConsoleMethod('error')
+        i18n.debug = true
 
-      i18n.translations.load('ka').catch(function () {
-        i18n.debug = false
-        expectError.toHaveBeenCalled()
-        expectError.cleanup()
+        i18n.translations.load('ka').catch(function () {
+          i18n.debug = false
+          expectError.toHaveBeenCalled()
+          expectError.cleanup()
 
-        done()
-      })
-    })
+          done()
+        })
+      }
+    )
   })
 
-  describe('#apply(ele)', function () {
+  describe('#apply(ele)', () => {
     var ele
 
-    beforeEach(function () {
+    beforeEach(() => {
       ele = document.createElement('div')
     })
 
-    it('should work when property is not nested', function (done) {
+    test('should work when property is not nested', done => {
       ele.setAttribute('data-i18n', 'test')
 
       i18n.translations.apply(ele).then(function () {
@@ -99,7 +110,7 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should remove previous content', function (done) {
+    test('should remove previous content', done => {
       ele.setAttribute('data-i18n', 'test')
       ele.innerHTML = 'test123'
 
@@ -110,7 +121,7 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should set lang attribute', function (done) {
+    test('should set lang attribute', done => {
       ele.setAttribute('data-i18n', 'test')
       ele.lang = 'de'
 
@@ -120,7 +131,7 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should not change anything when undefined', function (done) {
+    test('should not change anything when undefined', done => {
       ele.setAttribute('data-i18n', 'test42')
       ele.innerHTML = 'test43'
 
@@ -130,7 +141,7 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should not warn & not change anything when object', function (done) {
+    test('should not warn & not change anything when object', done => {
       var expectWarn = expectConsoleMethod('warn')
       ele.setAttribute('data-i18n', 'test2')
       ele.innerHTML = 'test43'
@@ -141,19 +152,22 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should warn & not change anything when object and debug', function (done) {
-      var expectWarn = expectConsoleMethod('warn')
-      ele.setAttribute('data-i18n', 'test2')
-      ele.innerHTML = 'test43'
-      i18n.debug = true
+    test(
+      'should warn & not change anything when object and debug',
+      done => {
+        var expectWarn = expectConsoleMethod('warn')
+        ele.setAttribute('data-i18n', 'test2')
+        ele.innerHTML = 'test43'
+        i18n.debug = true
 
-      i18n.translations.apply(ele).then(function () {
-        expectWarn.toHaveBeenCalled.with([ele, 'test2'], 1)
-        done()
-      })
-    })
+        i18n.translations.apply(ele).then(function () {
+          expectWarn.toHaveBeenCalled.with([ele, 'test2'], 1)
+          done()
+        })
+      }
+    )
 
-    it('should work when nested', function (done) {
+    test('should work when nested', done => {
       ele.setAttribute('data-i18n', 'test2.test4')
 
       i18n.translations.apply(ele).then(function () {
@@ -162,7 +176,7 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should work when nested', function (done) {
+    test('should work when nested', done => {
       ele.setAttribute('data-i18n', 'test2.test4')
 
       i18n.translations.apply(ele).then(function () {
@@ -171,7 +185,7 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should work when number', function (done) {
+    test('should work when number', done => {
       ele.setAttribute('data-i18n', 'test2.test3')
 
       i18n.translations.apply(ele).then(function () {
@@ -180,19 +194,22 @@ describe('i18n.translations', function () {
       })
     })
 
-    it('should not translate if lang attribute matches language', function (done) {
-      // "test": "test1"
-      ele.setAttribute('data-i18n', 'test')
-      ele.innerHTML = 'test'
-      ele.lang = lang
+    test(
+      'should not translate if lang attribute matches language',
+      done => {
+        // "test": "test1"
+        ele.setAttribute('data-i18n', 'test')
+        ele.innerHTML = 'test'
+        ele.lang = lang
 
-      i18n.translations.apply(ele).then(function () {
-        expect(ele.innerHTML).to.be.equal('test')
-        done()
-      })
-    })
+        i18n.translations.apply(ele).then(function () {
+          expect(ele.innerHTML).to.be.equal('test')
+          done()
+        })
+      }
+    )
 
-    it('should add every element of an array as paragraph', function (done) {
+    test('should add every element of an array as paragraph', done => {
       // "testArray": ["test1", "test2"]
       ele.setAttribute('data-i18n', 'testArray')
 
@@ -207,10 +224,10 @@ describe('i18n.translations', function () {
     })
   })
 
-  describe('#applyAll()', function () {
+  describe('#applyAll()', () => {
     var testEle
 
-    beforeEach(function () {
+    beforeEach(() => {
       var i
       var ele
 
@@ -226,22 +243,25 @@ describe('i18n.translations', function () {
       document.body.appendChild(testEle)
     })
 
-    it('should return document.documentElement with all translations applied', function (done) {
-      i18n.translations.applyAll().then(function () {
-        [].slice.call(testEle.children).forEach(function (ele, i) {
-          expect(ele.innerHTML).to.be.equal('result ' + i)
+    test(
+      'should return document.documentElement with all translations applied',
+      done => {
+        i18n.translations.applyAll().then(function () {
+          [].slice.call(testEle.children).forEach(function (ele, i) {
+            expect(ele.innerHTML).to.be.equal('result ' + i)
+          })
+          done()
         })
-        done()
-      })
-    })
+      }
+    )
 
-    afterEach(function () {
+    afterEach(() => {
       document.body.removeChild(testEle)
     })
   })
 
-  describe('#language', function () {
-    it('should return new language when setting it', function (done) {
+  describe('#language', () => {
+    test('should return new language when setting it', done => {
       i18n.language = 'de'
       expect(i18n.language).to.be.equal('de')
 
@@ -258,8 +278,8 @@ describe('i18n.translations', function () {
     })
   })
 
-  describe('#get(path)', function () {
-    it('should work', function (done) {
+  describe('#get(path)', () => {
+    test('should work', done => {
       Promise.all(['test', 'test2.test3', 'test2.test4'].map(function (path) {
         return i18n.translations.get(path)
       })).then(function (vals) {

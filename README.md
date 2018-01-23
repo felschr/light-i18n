@@ -17,8 +17,8 @@ To embed light-i18n into your HTML website include the following:
 <script src="scripts/light-i18n.js"></script>
 ```
 
-###using bower
-light-i18n will soon also be downloadable as a bower package. Check back later.
+###using npm
+light-i18n will soon also be downloadable as an npm package. Check back later.
 
 ## Usage
 

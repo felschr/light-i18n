@@ -3,7 +3,9 @@
 
 'use strict'
 
-describe('i18n.localisations', function () {
+var i18n = require('../src/main');
+
+describe('i18n.localisations', () => {
   var langDialect = navigator.userLanguage || navigator.language
   var lang = langDialect.split('-')[0]
   var expectObjectMethod = function (obj, name, cb, callOld) {
@@ -47,43 +49,52 @@ describe('i18n.localisations', function () {
 
   i18n.localisations.load()
 
-  describe('#load(lang, base)', function () {
-    it('should load localisations for current language when no lang attribute is given', function (done) {
-      i18n.translations.load().then(function (obj) {
-        expect(obj.language).to.be.equal(lang)
-        done()
-      })
-    })
+  describe('#load(lang, base)', () => {
+    test(
+      'should load localisations for current language when no lang attribute is given',
+      done => {
+        i18n.translations.load().then(function (obj) {
+          expect(obj.language).to.be.equal(lang)
+          done()
+        })
+      }
+    )
 
-    it('should load localisations for given language', function (done) {
+    test('should load localisations for given language', done => {
       i18n.localisations.load('test1').then(function (obj) {
         expect(obj.language).to.be.equal('test1')
         done()
       })
     })
 
-    it('should load no localisations for non-existing language and not call console.error', function (done) {
-      var expectError = expectConsoleMethod('error')
+    test(
+      'should load no localisations for non-existing language and not call console.error',
+      done => {
+        var expectError = expectConsoleMethod('error')
 
-      i18n.localisations.load('ka').catch(function () {
-        // expectError.toNotHaveBeenCalled()
-        expectError.cleanup()
-        done()
-      })
-    })
+        i18n.localisations.load('ka').catch(function () {
+          // expectError.toNotHaveBeenCalled()
+          expectError.cleanup()
+          done()
+        })
+      }
+    )
 
-    it('should load no localisations for non-existing language and call console.error after enabling debug', function (done) {
-      var expectError = expectConsoleMethod('error')
-      i18n.debug = true
+    test(
+      'should load no localisations for non-existing language and call console.error after enabling debug',
+      done => {
+        var expectError = expectConsoleMethod('error')
+        i18n.debug = true
 
-      i18n.localisations.load('ka').catch(function () {
-        i18n.debug = false
-        // expectError.toHaveBeenCalled()
-        expectError.cleanup()
+        i18n.localisations.load('ka').catch(function () {
+          i18n.debug = false
+          // expectError.toHaveBeenCalled()
+          expectError.cleanup()
 
-        done()
-      })
-    })
+          done()
+        })
+      }
+    )
   })
 
   function factory (tag, type, value) {
@@ -99,8 +110,8 @@ describe('i18n.localisations', function () {
     return ele
   }
 
-  describe('#apply(ele)', function () {
-    before(function (done) {
+  describe('#apply(ele)', () => {
+    beforeAll(function (done) {
       delete i18n.translations.loaded
       i18n.language = 'test1'
       i18n.localisations.load().then(function () {
@@ -108,7 +119,7 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with 2-digit integer', function (done) {
+    test('should work with 2-digit integer', done => {
       var ele = factory('data', 'number', '42')
 
       i18n.localisations.apply(ele).then(function () {
@@ -117,7 +128,7 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with 3-digit integer', function (done) {
+    test('should work with 3-digit integer', done => {
       var ele = factory('data', 'number', '242')
 
       i18n.localisations.apply(ele).then(function () {
@@ -126,7 +137,7 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with 4-digit integer', function (done) {
+    test('should work with 4-digit integer', done => {
       var ele = factory('data', 'number', '4242')
 
       i18n.localisations.apply(ele).then(function () {
@@ -135,7 +146,7 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with 6-digit integer', function (done) {
+    test('should work with 6-digit integer', done => {
       var ele = factory('data', 'number', '424242')
 
       i18n.localisations.apply(ele).then(function () {
@@ -144,7 +155,7 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with 7-digit integer', function (done) {
+    test('should work with 7-digit integer', done => {
       var ele = factory('data', 'number', '2424242')
 
       i18n.localisations.apply(ele).then(function () {
@@ -153,52 +164,67 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with 1-digit integral, 2-digit fractional part', function (done) {
-      var ele = factory('data', 'number', '0.42')
+    test(
+      'should work with 1-digit integral, 2-digit fractional part',
+      done => {
+        var ele = factory('data', 'number', '0.42')
 
-      i18n.localisations.apply(ele).then(function () {
-        expect(ele.innerHTML).to.be.equal('0a42')
-        done()
-      })
-    })
+        i18n.localisations.apply(ele).then(function () {
+          expect(ele.innerHTML).to.be.equal('0a42')
+          done()
+        })
+      }
+    )
 
-    it('should work with 1-digit integral, 3-digit fractional part', function (done) {
-      var ele = factory('data', 'number', '0.424')
+    test(
+      'should work with 1-digit integral, 3-digit fractional part',
+      done => {
+        var ele = factory('data', 'number', '0.424')
 
-      i18n.localisations.apply(ele).then(function () {
-        expect(ele.innerHTML).to.be.equal('0a424')
-        done()
-      })
-    })
+        i18n.localisations.apply(ele).then(function () {
+          expect(ele.innerHTML).to.be.equal('0a424')
+          done()
+        })
+      }
+    )
 
-    it('should work with 1-digit integral, 4-digit fractional part', function (done) {
-      var ele = factory('data', 'number', '0.4242')
+    test(
+      'should work with 1-digit integral, 4-digit fractional part',
+      done => {
+        var ele = factory('data', 'number', '0.4242')
 
-      i18n.localisations.apply(ele).then(function () {
-        expect(ele.innerHTML).to.be.equal('0a424c2')
-        done()
-      })
-    })
+        i18n.localisations.apply(ele).then(function () {
+          expect(ele.innerHTML).to.be.equal('0a424c2')
+          done()
+        })
+      }
+    )
 
-    it('should work with 1-digit integral, 6-digit fractional part', function (done) {
-      var ele = factory('data', 'number', '0.424242')
+    test(
+      'should work with 1-digit integral, 6-digit fractional part',
+      done => {
+        var ele = factory('data', 'number', '0.424242')
 
-      i18n.localisations.apply(ele).then(function () {
-        expect(ele.innerHTML).to.be.equal('0a424c242')
-        done()
-      })
-    })
+        i18n.localisations.apply(ele).then(function () {
+          expect(ele.innerHTML).to.be.equal('0a424c242')
+          done()
+        })
+      }
+    )
 
-    it('should work with 1-digit integral, 7-digit fractional part', function (done) {
-      var ele = factory('data', 'number', '0.4242424')
+    test(
+      'should work with 1-digit integral, 7-digit fractional part',
+      done => {
+        var ele = factory('data', 'number', '0.4242424')
 
-      i18n.localisations.apply(ele).then(function () {
-        expect(ele.innerHTML).to.be.equal('0a424c242c4')
-        done()
-      })
-    })
+        i18n.localisations.apply(ele).then(function () {
+          expect(ele.innerHTML).to.be.equal('0a424c242c4')
+          done()
+        })
+      }
+    )
 
-    it('should work with date', function (done) {
+    test('should work with date', done => {
       var ele = factory('time', 'date', '2014-01-01')
 
       i18n.localisations.apply(ele).then(function () {
@@ -207,7 +233,7 @@ describe('i18n.localisations', function () {
       })
     })
 
-    it('should work with time', function (done) {
+    test('should work with time', done => {
       var ele = factory('time', 'time', '01:02:03')
 
       i18n.localisations.apply(ele).then(function () {
@@ -217,7 +243,7 @@ describe('i18n.localisations', function () {
     })
   })
 
-  describe('#applyAll()', function () {
+  describe('#applyAll()', () => {
     var localisations = [
       ['42', '42'],
       ['242', '242'],
@@ -232,7 +258,7 @@ describe('i18n.localisations', function () {
     ]
     var testEle
 
-    beforeEach(function () {
+    beforeEach(() => {
       testEle = document.createElement('div')
       testEle.hidden = true
 
@@ -244,16 +270,19 @@ describe('i18n.localisations', function () {
       document.body.appendChild(testEle)
     })
 
-    it('should return document.documentElement with all localisations applied', function (done) {
-      i18n.localisations.applyAll().then(function () {
-        [].slice.call(testEle.children).forEach(function (ele, i) {
-          expect(ele.innerHTML).to.be.equal(localisations[i][1])
+    test(
+      'should return document.documentElement with all localisations applied',
+      done => {
+        i18n.localisations.applyAll().then(function () {
+          [].slice.call(testEle.children).forEach(function (ele, i) {
+            expect(ele.innerHTML).to.be.equal(localisations[i][1])
+          })
+          done()
         })
-        done()
-      })
-    })
+      }
+    )
 
-    afterEach(function () {
+    afterEach(() => {
       document.body.removeChild(testEle)
     })
   })
