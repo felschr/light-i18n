@@ -15,7 +15,7 @@ module.exports = function (grunt) {
       }
     },
 
-    mocha: {
+    mocha_phantomjs: {
       options: {
         run: true,
       },
@@ -38,7 +38,7 @@ module.exports = function (grunt) {
 
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'mocha']
+      tasks: ['jshint', 'mocha_phantomjs']
     },
 
     browserSync: {
@@ -55,11 +55,11 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-jshint')
-  grunt.loadNpmTasks('grunt-mocha')
+  grunt.loadNpmTasks('grunt-mocha-phantomjs')
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-browser-sync')
 
-  grunt.registerTask('test', ['jshint', 'mocha'])
-  grunt.registerTask('default', ['jshint', 'mocha', 'uglify'])
+  grunt.registerTask('test', ['jshint', 'mocha_phantomjs'])
+  grunt.registerTask('default', ['jshint', 'mocha_phantomjs', 'uglify'])
 
 }
